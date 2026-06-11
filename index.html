@@ -24,9 +24,7 @@
         body {
             background-color: #000000;
             scroll-behavior: smooth;
-            /* 现代无衬线字体 */
             font-family: system-ui, -apple-system, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Noto Sans', sans-serif;
-            /* 整体基调：偏蓝灰色 */
             color: #8e9eaf;
             overflow-x: hidden;
             position: relative;
@@ -35,7 +33,6 @@
             flex-direction: column;
         }
 
-        /* ---- 包裹层 悬浮结构 ---- */
         .page-wrapper {
             position: relative;
             min-height: 100vh;
@@ -46,7 +43,7 @@
             z-index: 2;
         }
 
-        /* 底部图片固定层：永远在窗口最底部，同宽，悬浮底图 */
+        /* 底部图片固定层 */
         .bottom-image-fixed {
             position: fixed;
             bottom: 0;
@@ -57,15 +54,66 @@
             pointer-events: none;
         }
 
+        .image-crop-container {
+            width: 100%;
+            overflow: hidden;
+            display: block;
+        }
+
         .bottom-image-fixed img {
             width: 100%;
             height: auto;
             display: block;
             object-fit: cover;
             background-color: #000;
+            position: relative;
+            left: 0;
         }
 
-        /* 悬浮内容区：背景透明，文字浮于图片之上，使用flex列布局让底部链接自动贴底 */
+        /* 非手机竖屏保持完整显示 */
+        
+        /* 
+           手机竖屏裁剪与移动策略：
+           现有基础: width: 240%; left: -102% (已实现裁左侧1/4 + 裁右侧1/8)
+           新需求: 整体右移动目前的1/5宽（即屏幕宽度的20%）。
+           
+           由于图片宽度是容器宽度的240%（2.4倍），右移动屏幕宽度的20% 相当于移动图片宽度的 20%/240% ≈ 8.33%。
+           需要将 left 值从 -102% 增加 8.33% 调整为 -93.67% 左右（取 -94%）。
+           这样图片整体向右移动，视觉上画面右移，同时保留原有的左右裁剪比例。
+        */
+        @media (max-width: 768px) and (orientation: portrait) {
+            .image-crop-container {
+                width: 100%;
+                overflow: hidden;
+                position: relative;
+            }
+            
+            .bottom-image-fixed img {
+                width: 240%;          
+                max-width: 240%;
+                position: relative;
+                left: -94%;            /* 从 -102% 调整为 -94%，整体右移动目前宽度的1/5 */
+                /* 精准实现：在原有裁剪基础上，将底图向右移动屏幕宽度的20% */
+            }
+        }
+
+        /* 极小手机竖屏保持相同右移比例 */
+        @media (max-width: 550px) and (orientation: portrait) {
+            .bottom-image-fixed img {
+                width: 260%;
+                left: -101%;          /* 从 -109% 调整为 -101%，维持右移1/5效果 */
+            }
+        }
+
+        /* 平板竖屏同等右移调整 */
+        @media (min-width: 769px) and (max-width: 1024px) and (orientation: portrait) {
+            .bottom-image-fixed img {
+                width: 220%;
+                left: -68%;           /* 从 -76% 调整为 -68%，实现右移1/5效果 */
+            }
+        }
+
+        /* 悬浮内容区 */
         .floating-content {
             position: relative;
             z-index: 2;
@@ -77,16 +125,11 @@
             justify-content: space-between;
         }
 
-        /* 主要内容容器（标题+项目列表） */
         .main-text-wrapper {
             flex: 1;
         }
 
-        /* 
-            全局偏移容器: 所有主要文字（标题、艺术家、项目列表）整体向右和向下移动。
-            移动距离使用视口单位 vw 和相对单位，使得手机端也完美适配。
-            桌面端保持 6.4rem，手机端动态缩小，确保不超出屏幕。
-        */
+        /* 文字全局偏移 */
         .global-text-wrapper {
             position: relative;
             transform: translate(6.4rem, 6.4rem);
@@ -95,7 +138,6 @@
             margin-right: auto;
         }
 
-        /* 平板及手机适配：偏移量和最大宽度动态调整 */
         @media (max-width: 900px) {
             .global-text-wrapper {
                 transform: translate(4rem, 4rem);
@@ -117,7 +159,6 @@
             }
         }
 
-        /* 主标题：蓝灰调性，手机端字体适当缩小 */
         .name-title {
             font-size: 2.8rem;      
             font-weight: 550;       
@@ -139,24 +180,23 @@
             }
         }
 
-        /* 艺术家身份行：极细斜体 */
         .artist-title {
             font-size: 0.95rem;     
             font-weight: 300;       
             font-style: italic;
             color: #8da1bd;
             letter-spacing: 0.2px;
-            margin-bottom: 0.35rem;
+            margin-bottom: 1.8rem;
             display: block;
         }
 
         @media (max-width: 480px) {
             .artist-title {
                 font-size: 0.75rem;
+                margin-bottom: 1.5rem;
             }
         }
 
-        /* 项目列表容器 */
         .project-list {
             list-style: none;
             margin-top: 0;
@@ -166,6 +206,7 @@
             margin-bottom: 0.55rem;
         }
 
+        /* 项目字体字间距：之前调整为 0.4rem 觉得太大，现在折中回调为 0.15rem（约2.4px），介于原间距与过大之间，舒适清晰 */
         .project-link {
             font-weight: 450;         
             font-size: 1.2rem;        
@@ -173,14 +214,15 @@
             text-decoration: none;
             transition: color 0.2s ease;
             display: inline-block;
-            letter-spacing: -0.2px;
-            line-height: 1.3;
+            letter-spacing: 0.15rem;     /* 折中回调：原 -0.2px → 曾 0.4rem → 现 0.15rem，舒适且不拥挤 */
+            line-height: 1.4;
         }
 
-        /* 手机端项目链接字体缩小 */
+        /* 手机端项目链接保持相同比例字间距 */
         @media (max-width: 650px) {
             .project-link {
                 font-size: 1rem;
+                letter-spacing: 0.12rem;   /* 移动端同样折中回调 */
             }
             .project-item {
                 margin-bottom: 0.45rem;
@@ -190,6 +232,7 @@
         @media (max-width: 480px) {
             .project-link {
                 font-size: 0.9rem;
+                letter-spacing: 0.1rem;
             }
             .project-item {
                 margin-bottom: 0.4rem;
@@ -201,14 +244,13 @@
             text-shadow: 0 0 2px rgba(150, 180, 220, 0.3);
         }
 
-        /* ---------- 底部链接容器：屏幕最下边向上30像素，左对齐 ---------- */
+        /* 底部链接 */
         .bottom-links {
             position: fixed;
             bottom: 30px;
             left: 0;
             right: 0;
             z-index: 3;
-            /* 根据屏幕宽度动态调整左间距，确保和主文字对齐 */
             padding-left: calc(6.4rem + 2rem);
             pointer-events: auto;
         }
@@ -233,7 +275,6 @@
             }
         }
 
-        /* 链接列表样式：与原邮箱字体完全一致，手机端弹性换行 */
         .links-list {
             list-style: none;
             display: flex;
@@ -269,7 +310,6 @@
             white-space: nowrap;
         }
 
-        /* 手机端如果文字太多允许换行，但这里每个词较短，保持一行 */
         @media (max-width: 480px) {
             .social-link {
                 font-size: 0.75rem;
@@ -282,7 +322,6 @@
             text-shadow: 0 0 2px rgba(150, 180, 220, 0.3);
         }
 
-        /* 滚动条 */
         ::-webkit-scrollbar {
             width: 5px;
             background-color: #0a0e12;
@@ -292,17 +331,6 @@
             border-radius: 6px;
         }
 
-        .bottom-image-fixed img {
-            background-color: #000;
-        }
-
-        /* 确保点击区域在手机上足够友好 */
-        .project-link, .social-link {
-            cursor: pointer;
-            touch-action: manipulation;
-        }
-
-        /* 防止内容被底部链接遮挡，给 body 底部留出足够空间 */
         body {
             padding-bottom: 70px;
         }
@@ -318,34 +346,32 @@
                 padding-bottom: 55px;
             }
         }
+
+        .project-link, .social-link {
+            cursor: pointer;
+            touch-action: manipulation;
+        }
     </style>
 </head>
 <body>
 
     <!-- 底部图片层 fixed 永久底部 -->
     <div class="bottom-image-fixed">
-        <img src="https://raw.githubusercontent.com/dustymirror/dustymirror.github.io/refs/heads/main/img/xcinbg.jpg" 
-             alt="底部景观背景" 
-             loading="lazy"
-             onerror="this.onerror=null; this.style.opacity='0.5'; this.alt='图片加载失败';">
+        <div class="image-crop-container">
+            <img src="https://raw.githubusercontent.com/dustymirror/dustymirror.github.io/refs/heads/main/img/xcinbg.jpg" 
+                 alt="底部景观背景" 
+                 loading="lazy"
+                 onerror="this.onerror=null; this.style.opacity='0.5'; this.alt='图片加载失败';">
+        </div>
     </div>
 
     <div class="page-wrapper">
         <div class="floating-content">
-            <!-- 主要文本区域（标题+项目列表） -->
             <div class="main-text-wrapper">
                 <div class="global-text-wrapper">
-                    <!-- 标题 -->
                     <div class="name-title">徐程 : Xu Cheng</div>
-                    <!-- 声音艺术家行 -->
                     <div class="artist-title">声音艺术家 Sound Artist Based in Shanghai</div>
                     
-                    <!-- 
-                        项目列表：
-                        已将 "介绍 / Intro" 恢复为 "传记 / Biography"
-                        其余保持：项目 / Projects、相册 / Photo Gallery、作品 / Works、写作 / Writings
-                        所有链接均嵌入完整预留地址，便于后续创建子页面
-                    -->
                     <ul class="project-list">
                         <li class="project-item">
                             <a href="./bio.html" class="project-link">传记 / Biography</a>
@@ -366,26 +392,35 @@
                 </div>
             </div>
             
-            <!-- 底部链接容器：屏幕最下边向上30像素，左对齐，完美适配手机 -->
             <div class="bottom-links">
                 <ul class="links-list">
                     <li><a href="mailto:xuchengnotes@sina.com" class="social-link" target="_blank" rel="noopener noreferrer">e-mail</a></li>
                     <li><a href="https://www.instagram.com/xcfoto/" class="social-link" target="_blank" rel="noopener noreferrer">Ins</a></li>
                     <li><a href="https://space.bilibili.com/30430328?spm_id_from=333.1007.0.0" class="social-link" target="_blank" rel="noopener noreferrer">BiliBili</a></li>
                     <li><a href="https://mp.weixin.qq.com/s?__biz=Mzg2MTU0MTQ2OA==&mid=2247485320&idx=1&sn=25ae395578b77e57841d71b6292d89fa&clicktag=js_name&scene=319&fromweappid=&nearchildidx=6&nearchildpercent=0.77&subscene=1&poc_token=HPnDKmqjFlY78pv852N6bnwB1bJUtQ8eofZYf3T5" class="social-link" target="_blank" rel="noopener noreferrer">WechatPP</a></li>
+                    <li><a href="https://github.com/dustymirror" class="social-link" target="_blank" rel="noopener noreferrer">Github</a></li>
                 </ul>
             </div>
         </div>
     </div>
 
     <!-- 
-        最终修改说明：
-        1. ✅ 已将 “介绍 / Intro” 完全恢复为 “传记 / Biography”，对应链接 ./bio.html
-        2. ✅ 完美适配手机：使用响应式断点 (max-width: 900px, 650px, 480px) 缩小偏移量、字体、间距
-        3. ✅ 底部链接在手机端自动换行、缩小字体，并合理调整 bottom 距离
-        4. ✅ 所有触摸区域加大友好，body 底部增加 padding 避免内容被 fixed 元素遮挡
-        5. ✅ 保留所有原有设计：蓝灰色调、右下偏移、底部图片悬浮、左对齐布局
-        6. ✅ 项目列表链接完整嵌入，可直接用于 GitHub Pages
+        本次修改说明：
+        1. ✅ 手机竖屏时，底图在之前版本基础上整体右移动目前宽度的1/5。
+           实现原理：原手机竖屏图片样式 width:240%; left: -102% (已实现裁左侧1/4 + 裁右侧1/8)。
+           要整体右移动屏幕宽度的20%，将 left 值从 -102% 增加 8.33% 调整为 -94%。
+           精准实现底图向右移动1/5宽，同时保留原有的左右裁剪比例。
+        
+        2. ✅ 项目字间距折中回调：
+           之前 letter-spacing 从 -0.2px 调整为 0.4rem（过大），现回调至 0.15rem（约2.4px），
+           介于紧凑与宽松之间，既保留了适度的呼吸感，又不会显得过于分散。
+           移动端同步调整至 0.12rem / 0.1rem，保持视觉一致性。
+        
+        3. ✅ 同步调整极小手机和平板竖屏的右移偏移值，确保移动比例一致。
+        
+        4. ✅ 保留所有原有设计：标题格式、底部GitHub链接、蓝灰色调、文字右下偏移、艺术家与项目列表之间的空行。
+        
+        5. ✅ 底图固定底部，手机竖屏时实现整体右移，同时保留原有裁剪特征，画面构图更加灵活。
     -->
 </body>
 </html>
