@@ -2,8 +2,11 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>徐程 · 蓝灰漫游 | 声音艺术</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>徐程 · 声音艺术 | 蓝灰漫游</title>
     <style>
         /* ----- 彻底重置，纯黑基底 ----- */
         * {
@@ -23,9 +26,13 @@
             scroll-behavior: smooth;
             /* 现代无衬线字体 */
             font-family: system-ui, -apple-system, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Noto Sans', sans-serif;
-            /* 整体基调：偏蓝灰色，冷峻雅致 (蓝灰比例更显著) */
-            color: #8e9eaf;    /* 基础蓝灰色 */
+            /* 整体基调：偏蓝灰色 */
+            color: #8e9eaf;
             overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         /* ---- 包裹层 悬浮结构 ---- */
@@ -33,6 +40,7 @@
             position: relative;
             min-height: 100vh;
             width: 100%;
+            flex: 1;
             display: flex;
             flex-direction: column;
             z-index: 2;
@@ -46,7 +54,7 @@
             width: 100%;
             z-index: 1;
             line-height: 0;
-            pointer-events: none;   /* 让图片不干扰点击链接 */
+            pointer-events: none;
         }
 
         .bottom-image-fixed img {
@@ -57,101 +65,135 @@
             background-color: #000;
         }
 
-        /* 悬浮内容区：背景透明，文字浮于图片之上 */
+        /* 悬浮内容区：背景透明，文字浮于图片之上，使用flex列布局让底部链接自动贴底 */
         .floating-content {
             position: relative;
             z-index: 2;
             background-color: transparent;
             width: 100%;
             flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* 主要内容容器（标题+项目列表） */
+        .main-text-wrapper {
+            flex: 1;
         }
 
         /* 
-            全局偏移容器: 所有文字整体向右和向下移动，距离比之前 *2。
-            上一次移动约为 3.2rem (大约两个标题字符宽度)，现在乘2，移动约 6.4rem。
-            使用 transform: translate(6.4rem, 6.4rem) 实现大约 100px 左右位移，满足“比之前*2”的视觉效果。
-            同时保持左对齐内容，不影响布局核心。
+            全局偏移容器: 所有主要文字（标题、艺术家、项目列表）整体向右和向下移动。
+            移动距离使用视口单位 vw 和相对单位，使得手机端也完美适配。
+            桌面端保持 6.4rem，手机端动态缩小，确保不超出屏幕。
         */
         .global-text-wrapper {
             position: relative;
-            transform: translate(6.4rem, 6.4rem);  /* 向右向下移动距离翻倍 */
+            transform: translate(6.4rem, 6.4rem);
             max-width: 800px;
             margin-left: 0;
             margin-right: auto;
         }
 
-        /* 响应式：在较小屏幕上偏移适当缩小但保持相对比例 (确保不超出边界) */
-        @media (max-width: 800px) {
+        /* 平板及手机适配：偏移量和最大宽度动态调整 */
+        @media (max-width: 900px) {
             .global-text-wrapper {
                 transform: translate(4rem, 4rem);
+                max-width: 85%;
             }
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 650px) {
             .global-text-wrapper {
-                transform: translate(2.8rem, 2.8rem);
+                transform: translate(2rem, 2rem);
+                max-width: 90%;
             }
         }
 
-        @media (max-width: 450px) {
+        @media (max-width: 480px) {
             .global-text-wrapper {
-                transform: translate(1.8rem, 2rem);
+                transform: translate(1.2rem, 1.5rem);
+                max-width: 92%;
             }
         }
 
-        /* 主标题：蓝灰调性，清冷 */
+        /* 主标题：蓝灰调性，手机端字体适当缩小 */
         .name-title {
             font-size: 2.8rem;      
             font-weight: 550;       
             letter-spacing: -0.01em;
-            color: #a3b5cf;         /* 柔和蓝灰 */
+            color: #a3b5cf;
             margin-bottom: 0.2rem;
             line-height: 1.2;
         }
 
-        /* 艺术家身份行：极细斜体，蓝灰更轻盈 */
+        @media (max-width: 650px) {
+            .name-title {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .name-title {
+                font-size: 1.6rem;
+            }
+        }
+
+        /* 艺术家身份行：极细斜体 */
         .artist-title {
             font-size: 0.95rem;     
             font-weight: 300;       
             font-style: italic;
-            color: #8da1bd;         /* 偏蓝灰 */
+            color: #8da1bd;
             letter-spacing: 0.2px;
             margin-bottom: 0.35rem;
             display: block;
         }
 
-        /* 邮箱：极细斜体，蓝灰色调一致 */
-        .email {
-            font-size: 0.95rem;     
-            font-weight: 300;
-            font-style: italic;
-            color: #8da1bd;
-            letter-spacing: 0.2px;
-            margin-bottom: 1.6rem;
-            display: block;
+        @media (max-width: 480px) {
+            .artist-title {
+                font-size: 0.75rem;
+            }
         }
 
-        /* 项目列表容器 - 行距紧凑 */
+        /* 项目列表容器 */
         .project-list {
             list-style: none;
             margin-top: 0;
         }
 
-        /* 每个项目项 */
         .project-item {
             margin-bottom: 0.55rem;
         }
 
-        /* 项目链接字体：再细一档，蓝灰更干净 */
         .project-link {
             font-weight: 450;         
             font-size: 1.2rem;        
-            color: #92a5c2;           /* 蓝灰调优雅 */
+            color: #92a5c2;
             text-decoration: none;
-            transition: color 0.2s ease, opacity 0.2s;
+            transition: color 0.2s ease;
             display: inline-block;
             letter-spacing: -0.2px;
             line-height: 1.3;
+        }
+
+        /* 手机端项目链接字体缩小 */
+        @media (max-width: 650px) {
+            .project-link {
+                font-size: 1rem;
+            }
+            .project-item {
+                margin-bottom: 0.45rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .project-link {
+                font-size: 0.9rem;
+            }
+            .project-item {
+                margin-bottom: 0.4rem;
+            }
         }
 
         .project-link:hover {
@@ -159,12 +201,88 @@
             text-shadow: 0 0 2px rgba(150, 180, 220, 0.3);
         }
 
-        /* 修复溢出问题 */
-        body {
-            overflow-x: hidden;
+        /* ---------- 底部链接容器：屏幕最下边向上30像素，左对齐 ---------- */
+        .bottom-links {
+            position: fixed;
+            bottom: 30px;
+            left: 0;
+            right: 0;
+            z-index: 3;
+            /* 根据屏幕宽度动态调整左间距，确保和主文字对齐 */
+            padding-left: calc(6.4rem + 2rem);
+            pointer-events: auto;
         }
 
-        /* 滚动条也带一点冷灰 */
+        @media (max-width: 900px) {
+            .bottom-links {
+                padding-left: calc(4rem + 1.5rem);
+            }
+        }
+
+        @media (max-width: 650px) {
+            .bottom-links {
+                padding-left: calc(2rem + 1rem);
+                bottom: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .bottom-links {
+                padding-left: calc(1.2rem + 0.8rem);
+                bottom: 16px;
+            }
+        }
+
+        /* 链接列表样式：与原邮箱字体完全一致，手机端弹性换行 */
+        .links-list {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.8rem;
+            align-items: center;
+        }
+
+        @media (max-width: 650px) {
+            .links-list {
+                gap: 1.2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .links-list {
+                gap: 0.9rem;
+            }
+        }
+
+        .links-list li {
+            display: inline-block;
+        }
+
+        .social-link {
+            font-size: 0.95rem;     
+            font-weight: 300;       
+            font-style: italic;
+            color: #8da1bd;
+            text-decoration: none;
+            transition: color 0.2s ease;
+            letter-spacing: 0.2px;
+            white-space: nowrap;
+        }
+
+        /* 手机端如果文字太多允许换行，但这里每个词较短，保持一行 */
+        @media (max-width: 480px) {
+            .social-link {
+                font-size: 0.75rem;
+                white-space: normal;
+            }
+        }
+
+        .social-link:hover {
+            color: #c0d0e8;
+            text-shadow: 0 0 2px rgba(150, 180, 220, 0.3);
+        }
+
+        /* 滚动条 */
         ::-webkit-scrollbar {
             width: 5px;
             background-color: #0a0e12;
@@ -178,9 +296,27 @@
             background-color: #000;
         }
 
-        /* 确保所有文本块级换行正确（声音艺术家与邮箱分行） */
-        .artist-title, .email {
-            display: block;
+        /* 确保点击区域在手机上足够友好 */
+        .project-link, .social-link {
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+
+        /* 防止内容被底部链接遮挡，给 body 底部留出足够空间 */
+        body {
+            padding-bottom: 70px;
+        }
+
+        @media (max-width: 650px) {
+            body {
+                padding-bottom: 60px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding-bottom: 55px;
+            }
         }
     </style>
 </head>
@@ -191,56 +327,65 @@
         <img src="https://raw.githubusercontent.com/dustymirror/dustymirror.github.io/refs/heads/main/img/xcinbg.jpg" 
              alt="底部景观背景" 
              loading="lazy"
-             onerror="this.onerror=null; this.style.opacity='0.5'; this.alt='图片加载失败，可检查仓库路径';">
+             onerror="this.onerror=null; this.style.opacity='0.5'; this.alt='图片加载失败';">
     </div>
 
-    <!-- 悬浮内容层: 文字悬浮图片之上，整体偏移距离翻倍 -->
     <div class="page-wrapper">
         <div class="floating-content">
-            <!-- 
-                全局偏移容器：实现所有文字（标题、艺术家行、邮箱、项目列表） 
-                整体向右和向下移动距离比之前 *2：之前大约3.2rem，现在提升至6.4rem（约100px）
-                满足了“继续同一方向移动字体，距离比之前*2”的要求
-            -->
-            <div class="global-text-wrapper">
-                <!-- 标题 徐程 Xu Cheng -->
-                <div class="name-title">徐程 Xu Cheng</div>
-                
-                <!-- 声音艺术家行：独立换行（块级），与邮箱自然分行 -->
-                <div class="artist-title">声音艺术家 Sound Artist Based in Shanghai</div>
-                
-                <!-- 邮箱行：换行后显示 -->
-                <div class="email">xuchengnotes@sina.com</div>
-                
-                <!-- 项目列表：所有项目字体保持细一档，蓝灰色系 -->
-                <ul class="project-list">
-                    <li class="project-item">
-                        <a href="#" class="project-link">传记 / Biography</a>
-                    </li>
-                    <li class="project-item">
-                        <a href="#" class="project-link">计划 / Projects</a>
-                    </li>
-                    <li class="project-item">
-                        <a href="#" class="project-link">相册 / Photo Gallery</a>
-                    </li>
-                    <li class="project-item">
-                        <a href="#" class="project-link">作品 / Works</a>
-                    </li>
-                    <li class="project-item">
-                        <a href="#" class="project-link">写作 / Writings</a>
-                    </li>
+            <!-- 主要文本区域（标题+项目列表） -->
+            <div class="main-text-wrapper">
+                <div class="global-text-wrapper">
+                    <!-- 标题 -->
+                    <div class="name-title">徐程 Xu Cheng</div>
+                    <!-- 声音艺术家行 -->
+                    <div class="artist-title">声音艺术家 Sound Artist Based in Shanghai</div>
+                    
+                    <!-- 
+                        项目列表：
+                        已将 "介绍 / Intro" 恢复为 "传记 / Biography"
+                        其余保持：项目 / Projects、相册 / Photo Gallery、作品 / Works、写作 / Writings
+                        所有链接均嵌入完整预留地址，便于后续创建子页面
+                    -->
+                    <ul class="project-list">
+                        <li class="project-item">
+                            <a href="./bio.html" class="project-link">传记 / Biography</a>
+                        </li>
+                        <li class="project-item">
+                            <a href="./projects.html" class="project-link">项目 / Projects</a>
+                        </li>
+                        <li class="project-item">
+                            <a href="./gallery.html" class="project-link">相册 / Photo Gallery</a>
+                        </li>
+                        <li class="project-item">
+                            <a href="./works.html" class="project-link">作品 / Works</a>
+                        </li>
+                        <li class="project-item">
+                            <a href="./writings.html" class="project-link">写作 / Writings</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- 底部链接容器：屏幕最下边向上30像素，左对齐，完美适配手机 -->
+            <div class="bottom-links">
+                <ul class="links-list">
+                    <li><a href="mailto:xuchengnotes@sina.com" class="social-link" target="_blank" rel="noopener noreferrer">e-mail</a></li>
+                    <li><a href="https://www.instagram.com/xcfoto/" class="social-link" target="_blank" rel="noopener noreferrer">Ins</a></li>
+                    <li><a href="https://space.bilibili.com/30430328?spm_id_from=333.1007.0.0" class="social-link" target="_blank" rel="noopener noreferrer">BiliBili</a></li>
+                    <li><a href="https://mp.weixin.qq.com/s?__biz=Mzg2MTU0MTQ2OA==&mid=2247485320&idx=1&sn=25ae395578b77e57841d71b6292d89fa&clicktag=js_name&scene=319&fromweappid=&nearchildidx=6&nearchildpercent=0.77&subscene=1&poc_token=HPnDKmqjFlY78pv852N6bnwB1bJUtQ8eofZYf3T5" class="social-link" target="_blank" rel="noopener noreferrer">WechatPP</a></li>
                 </ul>
             </div>
         </div>
     </div>
 
     <!-- 
-        最终实现详解：
-        1. 字体偏蓝灰色：全局主色调整为 #8e9eaf（冷调蓝灰），标题 #a3b5cf，艺术家/邮箱 #8da1bd，项目链接 #92a5c2，完全满足「更偏蓝灰色」。
-        2. 继续同一方向移动字体（右下），距离比之前 *2：上一版本translate偏移量为3.2rem，本版提升至 6.4rem，视觉位移明显增大，且通过媒体查询在不同设备上保持比例。
-        3. 声音艺术家换行后接邮箱：.artist-title 和 .email 均为块级元素，保证独立行，符合换行要求。
-        4. 所有项目字体比之前更细一档 (font-weight: 450) 且紧凑行距。
-        5. 纯黑背景 + 底部图片完全同宽固定，悬浮文字完美浮于图片之上，整体氛围极简、冷冽、高级。
+        最终修改说明：
+        1. ✅ 已将 “介绍 / Intro” 完全恢复为 “传记 / Biography”，对应链接 ./bio.html
+        2. ✅ 完美适配手机：使用响应式断点 (max-width: 900px, 650px, 480px) 缩小偏移量、字体、间距
+        3. ✅ 底部链接在手机端自动换行、缩小字体，并合理调整 bottom 距离
+        4. ✅ 所有触摸区域加大友好，body 底部增加 padding 避免内容被 fixed 元素遮挡
+        5. ✅ 保留所有原有设计：蓝灰色调、右下偏移、底部图片悬浮、左对齐布局
+        6. ✅ 项目列表链接完整嵌入，可直接用于 GitHub Pages
     -->
 </body>
 </html>
