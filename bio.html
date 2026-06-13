@@ -158,13 +158,14 @@
             }
             .main-content {
                 padding: 1.5rem;
+                max-width: calc(100% - 220px);
             }
             .artist-photo {
                 width: 100%;
             }
         }
 
-        /* 手机竖屏时：隐藏左侧图片，右侧内容占满全宽 */
+        /* 手机竖屏时：隐藏左侧图片区域，右侧内容占满全宽，同时隐藏左侧固定GIF */
         @media (max-width: 700px) and (orientation: portrait) {
             .scroll-side {
                 display: none;
@@ -184,6 +185,34 @@
             .photo-area {
                 margin-top: 1rem;
             }
+            /* 手机竖屏时隐藏左侧装饰GIF，避免遮挡内容 */
+            .fixed-left-gif {
+                display: none;
+            }
+        }
+
+        /* ========= 独立于左侧长图片的GIF：固定定位，紧贴窗口最左侧 ========= */
+        /* 原位置 top: 48rem（约40行高度），向上移动约1.5倍图片高度 */
+        /* 图片最大宽度66px，实际显示高度按比例约66~80px，1.5倍约99~120px，取100px调整 */
+        /* 使用 calc 让向上移动1.5倍自身高度，通过百分比无法直接使用自身高度，采用固定偏移估算 100px */
+        .fixed-left-gif {
+            position: fixed;
+            left: 0;
+            top: calc(48rem - 100px);   /* 向上移动大约1.5个图片高度（原66px图片，1.5倍≈100px） */
+            z-index: 20;
+            pointer-events: none;       /* 让图片不干扰点击 */
+            width: auto;
+        }
+        .side-gif-fixed {
+            display: block;
+            width: auto;
+            max-width: 66px;            /* 原图约100px的2/3 ≈ 66px */
+            height: auto;
+            opacity: 0.85;
+            transition: opacity 0.2s ease;
+        }
+        .side-gif-fixed:hover {
+            opacity: 1;
         }
 
         /* 底部链接区域 */
@@ -191,6 +220,7 @@
             margin-top: 2rem;
             border-top: 1px solid rgba(140, 170, 190, 0.2);
             padding-top: 1.5rem;
+            position: relative;
         }
         .nav-links-row {
             margin-bottom: 1.2rem;
@@ -412,6 +442,15 @@
             </div>
         </div>
     </div>
+</div>
+
+<!-- 独立装饰GIF：固定定位，紧贴窗口最左侧，向上移动约1.5个图片高度 -->
+<div class="fixed-left-gif">
+    <img class="side-gif-fixed" 
+         src="https://raw.githubusercontent.com/dustymirror/dustymirror.github.io/refs/heads/main/img/bluesnear.gif" 
+         alt="装饰动图"
+         loading="lazy"
+         onerror="this.onerror=null; this.style.opacity='0.5';">
 </div>
 
 </body>
