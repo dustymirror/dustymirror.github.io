@@ -847,17 +847,25 @@
         document.querySelectorAll('.catalog-link, .catalog-link-italic').forEach(link => link.classList.remove('active'));
         // 清除URL中的锚点
         if (window.location.hash) {
-            history.pushState(null, '', window.location.pathname);
+            history.replaceState(null, '', window.location.pathname);
         }
     }
 
-    // ----------------------------- 锚点路由: 页面加载时检测URL hash ------------------------------------
+    // ----------------------------- 锚点路由修正: 解决页面加载时锚点失效问题 ------------------------------------
     function handleHashChange() {
         const hash = window.location.hash;
         if (hash && hash.startsWith('#project-')) {
             const projectId = hash.replace('#project-', '');
             if (projectsData[projectId]) {
+                // 渲染项目后，确保页面滚动到该项目位置
                 renderProject(projectId);
+                // 额外尝试滚动到目标元素，以防渲染后位置偏移
+                setTimeout(() => {
+                    const target = document.getElementById(`project-${projectId}`);
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }, 100);
                 return;
             }
         }
@@ -868,8 +876,22 @@
     // 监听hash变化
     window.addEventListener('hashchange', handleHashChange);
 
-    // 页面加载时执行
-    window.addEventListener('DOMContentLoaded', handleHashChange);
+    // ----------------------------- 修正: DOMContentLoaded 时手动处理锚点 ------------------------------------
+    window.addEventListener('DOMContentLoaded', function() {
+        // 如果URL中有锚点，先清除默认行为，再手动处理
+        if (window.location.hash && window.location.hash.startsWith('#project-')) {
+            // 阻止浏览器默认滚动，保存锚点后清除URL中的hash
+            const hash = window.location.hash;
+            history.replaceState(null, '', window.location.pathname);
+            // 等待页面渲染完成后手动处理
+            setTimeout(function() {
+                handleHashChange(hash);
+            }, 150);
+        } else {
+            // 无锚点则正常显示欢迎页
+            resetToWelcome();
+        }
+    });
 
     // ----------------------------- 目录点击事件 ------------------------------------
     document.querySelectorAll('.catalog-link, .catalog-link-italic').forEach(link => {
@@ -908,9 +930,6 @@
         // 渲染完成后，为带有 data-internal-link 属性的元素绑定事件
         setTimeout(initInternalLinks, 50);
     };
-
-    // 欢迎页也支持内部链接
-    resetToWelcome();
 
     // 额外：如果页面加载时有hash，已经在DOMContentLoaded中处理了
 </script>
