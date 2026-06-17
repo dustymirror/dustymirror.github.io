@@ -9,6 +9,7 @@
     <meta http-equiv="Expires" content="0">
     <title>徐程 · 项目 | 声音档案</title>
     <style>
+        /* ---------- 样式完全保留，无改动 ---------- */
         * {
             margin: 0;
             padding: 0;
@@ -229,7 +230,7 @@
         .project-detail {
             max-width: 1100px;
             animation: fadeIn 0.3s ease;
-            scroll-margin-top: 2rem; /* 滚动时留出顶部间距 */
+            scroll-margin-top: 2rem;
         }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(8px);}
@@ -541,7 +542,7 @@
 </div>
 
 <script>
-    // ----------------------------- 鼠标互动逻辑 ------------------------------------
+    // ----------------------------- 鼠标互动逻辑 (保持不变) ------------------------------------
     (function() {
         const imgWrapper = document.getElementById('imgWrapper');
         const img = document.querySelector('.side-fixed-img');
@@ -574,7 +575,7 @@
         });
     })();
 
-    // ----------------------------- 项目数据 ------------------------------------
+    // ----------------------------- 项目数据 (完整保留，无改动) ------------------------------------
     const projectsData = {
         bsod: { 
             id: 'bsod',
@@ -802,7 +803,7 @@
         
         const chineseEnglishDivider = `<div class="centered-symbol">☾</div>`;
         
-        // 【关键修改】为每个项目详情容器添加独立的ID: project-{id}
+        // 【关键】为每个项目详情容器添加独立的ID: project-{id}
         const html = `
             <div class="project-detail" id="project-${data.id}">
                 ${!data.dissolvedCenter ? heroImgHtml : ''}
@@ -851,21 +852,23 @@
         }
     }
 
-    // ----------------------------- 锚点路由修正: 解决页面加载时锚点失效问题 ------------------------------------
+    // ----------------------------- 修正: 解决锚点首次加载失效问题 ------------------------------------
+    // 核心思路: 拦截浏览器默认锚点行为，在项目渲染完成后手动定位
     function handleHashChange() {
         const hash = window.location.hash;
         if (hash && hash.startsWith('#project-')) {
             const projectId = hash.replace('#project-', '');
             if (projectsData[projectId]) {
-                // 渲染项目后，确保页面滚动到该项目位置
+                // 先渲染项目
                 renderProject(projectId);
-                // 额外尝试滚动到目标元素，以防渲染后位置偏移
+                // 延迟执行滚动，确保 DOM 已更新
                 setTimeout(() => {
                     const target = document.getElementById(`project-${projectId}`);
                     if (target) {
+                        // 使用 scrollIntoView 进行平滑滚动
                         target.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }
-                }, 100);
+                }, 150);
                 return;
             }
         }
@@ -873,20 +876,24 @@
         resetToWelcome();
     }
 
-    // 监听hash变化
+    // 监听 hash 变化 (用户手动点击目录或前进后退)
     window.addEventListener('hashchange', handleHashChange);
 
-    // ----------------------------- 修正: DOMContentLoaded 时手动处理锚点 ------------------------------------
+    // 【关键修改】页面加载时，阻止浏览器默认锚点行为，由 JavaScript 接管
     window.addEventListener('DOMContentLoaded', function() {
-        // 如果URL中有锚点，先清除默认行为，再手动处理
+        // 如果URL中有锚点且以 #project- 开头
         if (window.location.hash && window.location.hash.startsWith('#project-')) {
-            // 阻止浏览器默认滚动，保存锚点后清除URL中的hash
+            // 1. 保存当前锚点
             const hash = window.location.hash;
+            // 2. 立即清除URL中的锚点，阻止浏览器默认滚动
             history.replaceState(null, '', window.location.pathname);
-            // 等待页面渲染完成后手动处理
+            // 3. 等待页面初始渲染完成，再手动处理锚点
+            // 使用 setTimeout 确保所有脚本执行完毕
             setTimeout(function() {
-                handleHashChange(hash);
-            }, 150);
+                // 恢复锚点并触发跳转
+                history.replaceState(null, '', hash);
+                handleHashChange();
+            }, 200);
         } else {
             // 无锚点则正常显示欢迎页
             resetToWelcome();
@@ -907,7 +914,6 @@
     });
 
     // ----------------------------- 内部关键词链接支持 ------------------------------------
-    // 该函数将页面内所有带 data-internal-link 属性的元素转换为可点击的锚点链接
     function initInternalLinks() {
         document.querySelectorAll('[data-internal-link]').forEach(el => {
             const targetId = el.getAttribute('data-internal-link');
@@ -927,11 +933,11 @@
     const originalRender = renderProject;
     renderProject = function(projectId) {
         originalRender(projectId);
-        // 渲染完成后，为带有 data-internal-link 属性的元素绑定事件
         setTimeout(initInternalLinks, 50);
     };
 
-    // 额外：如果页面加载时有hash，已经在DOMContentLoaded中处理了
+    // 初始化时绑定内部链接
+    setTimeout(initInternalLinks, 100);
 </script>
 </body>
 </html>
