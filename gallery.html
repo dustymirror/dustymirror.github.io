@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <link rel="icon" type="image/x-icon" href="./img/favicon.ico">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>徐程 · 项目 | 声音档案</title>
+    <style>
+        /* ---------- 样式完全保留，无改动 ---------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            background-color: #000000;
+        }
+
+        body {
+            background-color: #000000;
+            font-family: system-ui, -apple-system, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Noto Sans', sans-serif;
+            color: #8e9eaf;
+            overflow: hidden;
+            position: relative;
+            height: 100vh;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            background-color: #0a0e12;
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: #2c3e4e;
+            border-radius: 8px;
+        }
+
+        /* 左侧固定图片容器 */
+        .left-fixed-img {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 240px;
+            height: 100vh;
+            background-color: #000;
+            overflow: visible;
+            z-index: 10;
+        }
+        /* 可互动的大图片容器 - 初始上移16px */
+        .interactive-img-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-start;
+            overflow: visible;
+            transform-origin: top left;
+            will-change: transform;
+            transform: translateY(-16px);
+        }
+        .side-fixed-img {
+            width: 120%;
+            max-width: none;
+            height: auto;
+            display: block;
+            object-fit: cover;
+            object-position: left top;
+            transform-origin: top left;
+            will-change: transform;
+        }
+        /* 悬浮固定小图标 - 原始大小，顶部左侧贴边 */
+        .fixed-icon {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: auto;
+            height: auto;
+            z-index: 20;
+            pointer-events: none;
+            opacity: 0.9;
+        }
+
+        /* 目录栏 */
+        .catalog-sidebar {
+            position: fixed;
+            left: 240px;
+            top: 0;
+            width: 340px;
+            background-color: #050505;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 2rem 1.2rem 2rem 1.5rem;
+            border-right: 1px solid rgba(140, 170, 190, 0.15);
+            z-index: 10;
+            transition: transform 0.3s ease;
+        }
+        .catalog-sidebar::-webkit-scrollbar {
+            width: 3px;
+        }
+        .catalog-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #a2bbdf;
+            margin-bottom: 0.5rem;
+        }
+        .catalog-name {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #cbdae9;
+            margin: 1.2rem 0 0.5rem 0;
+            padding-bottom: 0.25rem;
+            border-bottom: 1px solid rgba(140, 170, 190, 0.3);
+        }
+        .catalog-list {
+            list-style: none;
+            margin: 0;
+            padding-left: 0.5rem;
+        }
+        .catalog-list li {
+            margin-bottom: 0.6rem;
+        }
+        .catalog-item-wrapper {
+            display: block;
+            cursor: pointer;
+        }
+        .catalog-link {
+            font-size: 0.9rem;
+            color: #8da1bd;
+            text-decoration: none;
+            transition: color 0.2s;
+            display: inline-block;
+        }
+        .catalog-link-italic {
+            font-size: 0.75rem;
+            font-style: italic;
+            color: #8da1bd;
+            text-decoration: none;
+            transition: color 0.2s;
+            display: block;
+            margin-top: 0.1rem;
+            padding-left: 0.5rem;
+        }
+        .catalog-item-wrapper:hover .catalog-link,
+        .catalog-item-wrapper:hover .catalog-link-italic {
+            color: #c0d0e8;
+        }
+        .catalog-link.active, .catalog-link-italic.active {
+            color: #e0eef8;
+            font-weight: 500;
+        }
+
+        /* 手机悬浮目录按钮 */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 200;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(140, 170, 190, 0.3);
+            border-radius: 30px;
+            padding: 0.4rem 0.8rem;
+            cursor: pointer;
+            align-items: center;
+            gap: 6px;
+            font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+        }
+        .mobile-menu-btn span:first-child {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #cbdae9;
+        }
+        .mobile-menu-btn span:last-child {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #cbdae9;
+            letter-spacing: 0.3px;
+        }
+        .mobile-menu-btn:hover {
+            background: rgba(0, 0, 0, 0.85);
+        }
+
+        /* 右侧内容栏 */
+        .content-area {
+            position: absolute;
+            left: 580px;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            overflow-y: auto;
+            padding: 2rem 2.5rem 100px 2.5rem;
+            background-color: #000000;
+        }
+
+        .welcome-text p, .project-detail p, .project-detail .en-text {
+            line-height: 1.9;
+            margin-bottom: 1rem;
+        }
+
+        .welcome-text {
+            max-width: 900px;
+            margin-top: 2rem;
+        }
+        .welcome-text p {
+            font-size: 1rem;
+            color: #b0c0d4;
+        }
+        .welcome-footer-img {
+            margin-top: 3rem;
+            text-align: left;
+        }
+        .welcome-footer-img img {
+            max-width: 100%;
+            max-height: 400px;
+            width: auto;
+            height: auto;
+            border-radius: 4px;
+            transform: scale(1.35);
+            transform-origin: left center;
+            margin: 2rem 0;
+        }
+
+        /* 每个项目详情块，添加独立ID用于锚点跳转 */
+        .project-detail {
+            max-width: 1100px;
+            animation: fadeIn 0.3s ease;
+            scroll-margin-top: 2rem;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+        .project-detail h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #c2d4f0;
+            margin-bottom: 1rem;
+        }
+        .project-detail p {
+            font-size: 0.95rem;
+            color: #b8c7dd;
+        }
+        .project-detail .en-text {
+            color: #a5b6ce;
+            margin-top: 1rem;
+        }
+        .centered-symbol {
+            text-align: center;
+            margin: 2rem 0;
+        }
+        .centered-principle {
+            text-align: center;
+            margin: 0.5rem 0;
+        }
+        .hero-img {
+            width: 100%;
+            max-width: 800px;
+            max-height: 500px;
+            object-fit: contain;
+            margin-bottom: 1.5rem;
+            background-color: #000000;
+        }
+        .hero-img-yyt {
+            width: 100%;
+            max-width: 1120px;
+            max-height: 700px;
+            object-fit: contain;
+            margin-bottom: 1.5rem;
+            background-color: #000000;
+        }
+        .hero-img-playrec {
+            width: 100%;
+            max-width: 426px;
+            max-height: 266px;
+            object-fit: contain;
+            margin-bottom: 1.5rem;
+            background-color: #000000;
+        }
+        .hero-img-dissolved {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 100%;
+            max-width: 960px;
+            max-height: 600px;
+            object-fit: contain;
+            margin-top: 6rem;
+            margin-bottom: 1.5rem;
+            background-color: #000000;
+            transform: scale(1.2);
+            transform-origin: center center;
+        }
+        .small-img-cfg1 {
+            max-width: 66% !important;
+            width: auto;
+        }
+        .bsod-bottom-images {
+            margin-top: 3.5rem;
+        }
+        .vertical-img-list {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            margin: 1.2rem 0;
+        }
+        .vertical-img-list img {
+            max-width: 100%;
+            width: auto;
+            height: auto;
+            border-radius: 6px;
+            border: 1px solid #2a3a44;
+            background: #0a0e12;
+            object-fit: contain;
+        }
+        .yuyintang-bottom-img {
+            transform: scale(2);
+            margin-top: 14rem;
+            margin-bottom: 2rem;
+        }
+        .link-list {
+            margin: 1rem 0;
+        }
+        .link-btn {
+            display: inline-block;
+            margin: 0.25rem 0.8rem 0.25rem 0;
+            padding: 0.2rem 0.6rem;
+            background: rgba(30, 40, 50, 0.6);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #b89eff;
+            text-decoration: none;
+        }
+        .link-btn:hover {
+            background: #2c3e4e;
+            color: #d4b4ff;
+        }
+        iframe {
+            max-width: 100%;
+            border-radius: 8px;
+            margin: 0.5rem 0;
+        }
+        .small-italic {
+            font-size: 0.85rem;
+            font-style: italic;
+            color: #a0aec0;
+        }
+        strong, b {
+            color: #c2d4f0;
+        }
+
+        /* 底部固定栏 - 与目录栏右边缘对齐 */
+        .bottom-fixed-bar {
+            position: fixed;
+            bottom: 0;
+            left: 580px;
+            right: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            border-top: 1px solid rgba(140, 170, 190, 0.25);
+            padding: 0.6rem 1rem;
+            z-index: 100;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 1.2rem;
+            font-size: 0.85rem;
+        }
+        .bottom-fixed-bar a {
+            color: #8da1bd;
+            text-decoration: none;
+            transition: color 0.2s;
+            font-weight: 300;
+            font-style: italic;
+            white-space: nowrap;
+        }
+        .bottom-fixed-bar a:hover {
+            color: #c0d0e8;
+        }
+        .sep-space {
+            margin-left: 4rem;
+        }
+
+        /* 手机竖屏优化 */
+        @media (max-width: 800px) {
+            .left-fixed-img {
+                display: none;
+            }
+            .catalog-sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+                left: 0;
+                z-index: 150;
+                padding-top: 5rem;
+            }
+            .catalog-sidebar.open {
+                transform: translateX(0);
+            }
+            .mobile-menu-btn {
+                display: flex;
+            }
+            .content-area {
+                position: relative;
+                left: 0;
+                padding: 4rem 1rem 120px 1rem;
+                width: 100%;
+                overflow-y: auto !important;
+                height: 100vh;
+            }
+            .bottom-fixed-bar {
+                left: 0;
+                transform: none;
+                padding: 0.5rem;
+                gap: 0.5rem;
+                font-size: 0.75rem;
+                justify-content: flex-start;
+                flex-wrap: wrap;
+            }
+            .bottom-fixed-bar a:nth-child(4) {
+                flex-basis: 100%;
+                text-align: left;
+                margin-bottom: 0.2rem;
+            }
+            .sep-space {
+                display: none;
+            }
+            .project-detail p, .welcome-text p {
+                font-size: 0.9rem;
+            }
+            .hero-img, .hero-img-dissolved, .hero-img-yyt, .hero-img-playrec {
+                max-width: 100%;
+                transform: none;
+                margin: 1rem 0;
+            }
+            .welcome-footer-img img {
+                transform: scale(1);
+                max-width: 100%;
+                height: auto;
+            }
+            .yuyintang-bottom-img {
+                transform: scale(1.5);
+                margin-top: 7rem;
+            }
+        }
+
+        /* ---------- 内部关键词链接样式 ---------- */
+        .internal-link {
+            color: #b89eff;
+            text-decoration: none;
+            border-bottom: 1px dashed rgba(184, 158, 255, 0.3);
+            transition: color 0.2s, border-color 0.2s;
+            cursor: pointer;
+        }
+        .internal-link:hover {
+            color: #d4b4ff;
+            border-bottom-color: #d4b4ff;
+        }
+        /* 高亮跳转到的目标 */
+        .project-detail.highlight-target {
+            animation: highlightPulse 1.5s ease;
+        }
+        @keyframes highlightPulse {
+            0% { box-shadow: 0 0 0 0 rgba(184, 158, 255, 0.3); }
+            50% { box-shadow: 0 0 30px 10px rgba(184, 158, 255, 0.1); }
+            100% { box-shadow: 0 0 0 0 rgba(184, 158, 255, 0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="left-fixed-img" id="leftImageContainer">
+    <!-- 可互动的大图片 -->
+    <div class="interactive-img-wrapper" id="imgWrapper">
+        <img class="side-fixed-img" src="./img/proimg/prb.gif" alt="左侧装饰" loading="lazy" onerror="this.style.opacity='0.3'">
+    </div>
+    <!-- 悬浮固定小图标（原始大小，左上贴边） -->
+    <img class="fixed-icon" src="./img/proimg/prbg.gif" alt="固定图标" loading="lazy" onerror="this.style.opacity='0.5'">
+</div>
+
+<div class="catalog-sidebar" id="catalogSidebar">
+    <div class="catalog-title">徐程 Xu Cheng</div>
+    <div class="catalog-name">个人项目 / Solo Projects</div>
+    <ul class="catalog-list">
+        <li><div class="catalog-item-wrapper"><a class="catalog-link" data-project="bsod">B.S.O.D.</a><span class="catalog-link-italic" data-project="bsod">No longer continuing</span></div></li>
+        <li><div class="catalog-item-wrapper"><a class="catalog-link" data-project="yuyintang">鱼饮汤 / Yu Yin Tang</a></div></li>
+        <li><div class="catalog-item-wrapper"><a class="catalog-link" data-project="xcng">XCNG</a></div></li>
+    </ul>
+    <div class="catalog-name">团体项目 / Group Projects</div>
+    <ul class="catalog-list">
+        <li><div class="catalog-item-wrapper"><a class="catalog-link" data-project="cfg">意识反馈团 / Consciousness Feedback Group</a></div></li>
+        <li><div class="catalog-item-wrapper"><a class="catalog-link" data-project="fmcs">上海自由音乐联盟 / Free Music Collective of Shanghai</a></div></li>
+        <li><div class="catalog-item-wrapper"><a class="catalog-link" data-project="meltha">梅儿萨戏馆 / Meltha Cinemah</a></div></li>
+        <li><div class="catalog-item-wrapper"><a class="catalog-link" data-project="shanghai5">上海五重奏 / Shanghai Quintet</a></div></li>
+        <li><div class="catalog-item-wrapper"><a class="catalog-link" data-project="tolerances">人面耐受 / Tolerances of the Human Face</a></div></li>
+        <li><div class="catalog-item-wrapper"><a class="catalog-link" data-project="tmism">马氏社会调制器 / The Mustangs in Social Modulator</a></div></li>
+        <li><div class="catalog-item-wrapper"><a class="catalog-link" data-project="tn">虐待护士 / Torturing Nurse</a><span class="catalog-link-italic" data-project="tn">Left since 2017</span></div></li>
+        <li><div class="catalog-item-wrapper"><a class="catalog-link" data-project="twonoughts">Two Noughts / OO</a><span class="catalog-link-italic" data-project="twonoughts">No longer continuing</span></div></li>
+    </ul>
+    <div class="catalog-name">唱片厂牌 / Label</div>
+    <ul class="catalog-list"><li><div class="catalog-item-wrapper"><a class="catalog-link" data-project="playrec">play rec</a></div></li></ul>
+    <div class="catalog-name">活动策划 / Performances</div>
+    <ul class="catalog-list"><li><div class="catalog-item-wrapper"><a class="catalog-link" data-project="dissolved">溶解折射 / Dissolved Refraction</a></div></li><li><div class="catalog-item-wrapper"><a class="catalog-link" data-project="noishanghai">闹上海 / Noishanghai</a><span class="catalog-link-italic" data-project="noishanghai">No longer continuing</span></div></li><li><div class="catalog-item-wrapper"><a class="catalog-link" data-project="readaloud">朗／读 / Read/Aloud</a><span class="catalog-link-italic" data-project="readaloud">No longer continuing</span></div></li></ul>
+    <!-- 末尾添加2空行 -->
+    <div style="height: 2rem;"></div>
+    <div style="height: 2rem;"></div>
+</div>
+
+<div class="mobile-menu-btn" id="mobileMenuBtn">
+    <span>▶️</span>
+    <span>Projects</span>
+</div>
+
+<div class="content-area" id="contentArea">
+    <div id="welcomeMessage" class="welcome-text">
+        <p>徐程一般以本名进行大部分的声音艺术与实验音乐表演，但也有诸多特别项目以组合或其他代号进行，这里是不完整的大部分主要项目。</p>
+        <p>Xu Cheng typically performs under his real name for most of his work, such as sound art and experimental music, but he has also undertaken numerous special projects under the names of various groups or pseudonyms. Here is a partial list of his major projects.</p>
+        <div class="welcome-footer-img">
+            <img src="./img/proimg/xc.gif" alt="装饰" loading="lazy">
+        </div>
+    </div>
+    <div id="dynamicContent"></div>
+</div>
+
+<div class="bottom-fixed-bar">
+    <a href="./bio.html">传记 / Biography</a>
+    <a href="./gallery.html">相册 / Photo Gallery</a>
+    <a href="./works.html">作品 / Works</a>
+    <a href="./writings.html">写作 / Writings</a>
+    <span class="sep-space"></span>
+    <a href="mailto:xuchengnotes@sina.com">e-mail</a>
+    <a href="https://www.instagram.com/xcfoto/" target="_blank">Ins</a>
+    <a href="https://space.bilibili.com/30430328" target="_blank">BiliBili</a>
+    <a href="https://mp.weixin.qq.com/s?__biz=Mzg2MTU0MTQ2OA==&mid=2247485320&idx=1&sn=25ae395578b77e57841d71b6292d89fa" target="_blank">WechatPP</a>
+    <a href="https://github.com/dustymirror" target="_blank">Github</a>
+</div>
+
+<script>
+    // ----------------------------- 鼠标互动逻辑 (保持不变) ------------------------------------
+    (function() {
+        const imgWrapper = document.getElementById('imgWrapper');
+        const img = document.querySelector('.side-fixed-img');
+        if (!imgWrapper || !img) return;
+        
+        imgWrapper.style.transition = 'transform 0.06s cubic-bezier(0.2, 0.9, 0.4, 1.1)';
+        img.style.transition = 'transform 0.06s cubic-bezier(0.2, 0.9, 0.4, 1.1)';
+        
+        window.addEventListener('mousemove', function(e) {
+            const winWidth = window.innerWidth;
+            const winHeight = window.innerHeight;
+            let mouseX = e.clientX / winWidth;
+            let mouseY = e.clientY / winHeight;
+            mouseX = Math.min(1, Math.max(0, mouseX));
+            mouseY = Math.min(1, Math.max(0, mouseY));
+            
+            const scale = 0.94 + (mouseX * 0.05) + (mouseY * 0.05);
+            let rawShiftX = (mouseX - 0.5) * 16;
+            const shiftX = Math.min(2, Math.max(-8, rawShiftX));
+            let rawShiftY = (mouseY - 0.5) * 18;
+            const shiftY = Math.min(6, Math.max(-12, rawShiftY));
+            
+            imgWrapper.style.transform = `translateY(-16px) translate(${shiftX}px, ${shiftY}px)`;
+            img.style.transform = `scale(${scale})`;
+        });
+        
+        window.addEventListener('mouseleave', function() {
+            imgWrapper.style.transform = `translateY(-16px) translate(0px, 0px)`;
+            img.style.transform = 'scale(1)';
+        });
+    })();
+
+    // ----------------------------- 项目数据 (完整保留，无改动) ------------------------------------
+    const projectsData = {
+        bsod: { 
+            id: 'bsod',
+            title: "B.S.O.D.", 
+            heroImg: "./img/proimg/bsod.gif", 
+            chinese: `<p><strong>B.S.O.D.</strong>是徐程的早期强力数字音频实验代号，它涉及线上音景录音、混乱的数字噪音、笔记本行为表演、实时合成表演等等。这个代号曾出现在早期的一些合集、Split、表演以及在<strong>SHASHA</strong>唱片出版的一张全长CDR专辑。</p>`,
+            english: `<p><strong>B.S.O.D.</strong> was the project alias for Xu Cheng's early, highly experimental digital audio work, which encompassed online soundscape recordings, chaotic digital noise, laptop-based performance art, and live audio synthesis performances, among other elements. This alias appeared on several early compilations, split releases, and live performances, as well as on a full-length CDR album released by <strong>SHASHA</strong> Records.</p>`,
+            links: ``, 
+            images: [`./img/proimg/bsod1.jpg`, `./img/proimg/bsod2.jpg`], 
+            bsodBottomMargin: true 
+        },
+        yuyintang: { 
+            id: 'yuyintang',
+            title: "鱼饮汤 / Yu Yin Tang", 
+            heroImg: "./img/proimg/yytp.jpg", 
+            enlargeHero: true,
+            chinese: `<p><strong>鱼饮汤</strong>是徐程的极端噪音代号。这个代号来自于<strong>Torturing Nurse</strong>的一件趣事。某个时期Junky因一些特殊原因不能自由地在进行表演、发布演出信息。Junky有一次把上海的Live House"育音堂"以"鱼饮汤"作为文字代码发送给别人。而"鱼饮汤"的字面意义与原本谐音源"育婴堂"的麻木吞噬意象以及这个事件里信息被阻碍时的再度符码构建都恰恰击中了徐程。于是，这个麻木的大音量计划诞生了，它既是<strong>B.S.O.D.</strong>的延续也是徐程作为TN不可能进行的某些实践的延伸。</p><p><strong>鱼饮汤</strong>在2016年曾与TN在<strong>Life is absurd</strong>厂牌发表过磁带Split。2018年<strong>鱼饮汤</strong>在<strong>RRRecords</strong>的著名<strong>Recycled</strong>系列发表了磁带个人专辑。</p>`,
+            english: `<p><strong>Yu Yin Tang</strong> (fish drinking soup) is Xu Cheng's alias for his noise project. The name originates from an anecdote involving <strong>Torturing Nurse</strong>. At one point, Junky was unable to freely perform or announce shows due to certain circumstances. On one occasion, Junky sent the name of the Shanghai live house "Yu Yin Tang" (House of Music Education) to others using the text code "Yu Yin Tang" (Fish Drinking Soup, a homophone with a different meaning in Chinese). The literal meaning of "Fish Drinking Soup"---its association with the numbing, all-consuming imagery of the original homophone "Yu Ying Tang" (a nursery)---and the act of reconstructing the code when information was blocked during that incident struck a chord with Xu Cheng. Thus, this numbing, high-volume project was born, serving both as a continuation of <strong>B.S.O.D.</strong> and an extension of certain practices Xu Cheng could not pursue in <strong>TN</strong>.</p><p>In 2016, <strong>YYT</strong> released a split cassette with TN on the Life is Absurd label. In 2018, <strong>YYT</strong> released a solo cassette album on RRRecords' renowned Recycled series.</p>`,
+            links: `<div class="link-list"><iframe src="https://player.bilibili.com/player.html?bvid=BV1V54y1d7Em&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width:100%; max-width:640px; height:360px;"></iframe></div>`,
+            images: [`./img/proimg/yyt.jpg`], 
+            enlargeBottomImg: true 
+        },
+        xcng: { 
+            id: 'xcng',
+            title: "XCNG", 
+            heroImg: "./img/proimg/xcng.jpg",
+            chinese: `<p><strong>XCNG</strong>是徐程的节奏舞曲与数字硬核代号。节奏的出现是这个代号的基本特征，无关风格。</p>`,
+            english: `<p><strong>XCNG</strong> is Xu Cheng's rhythmic dance music and digital hardcore alias. Rhythm is the defining characteristic of this alias, regardless of genre.</p>`,
+            links: ``, 
+            images: [] 
+        },
+        cfg: { 
+            id: 'cfg',
+            title: "意识反馈团 / Consciousness Feedback Group", 
+            heroImg: "./img/proimg/cfgp.jpg",
+            chinese: `<p><strong>意识反馈团</strong>（<strong>C.F.G.</strong>）是由卖卖，徐程和照骏园组建于二零一八年的三人团。他们以即兴为线索，利用音乐、声音、文本、行为等媒介探索着一种与美幻无关的非可辨识的风格。<strong>C.F.G.</strong>已在<strong>噪眠夜</strong>和<strong>时代精神在哪里部</strong>有过两个专辑出版。</p>`,
+            english: `<p><strong>Consciousness Feedback Group</strong> (<strong>C.F.G.</strong>) is a trio formed in 2018 by MAI mai, Xu Cheng and Jun-y Ciao. Using improvisation as a clue, they are exploring a non-recognisable style that has nothing to do with beauty and illusions using the mediums of music, sound, text and performance.<strong>C.F.G.</strong> has released two albums under <strong>Zoomin' Night</strong> and <strong>Where Is The Zeitgeist? editing office</strong>.</p>`,
+            links: `<div class="link-list"><a class="link-btn" href="https://mp.weixin.qq.com/s/deqbiG2zOYGuacItBq4GsQ" target="_blank"><em>其他中文公号信息</em></a><a class="link-btn" href="https://zoominnight.bandcamp.com/album/killed-as-time" target="_blank"><strong><em>KILLED AS TIME</em></strong></a><a class="link-btn" href="https://whereisthezeitgeisteditingoffice.bandcamp.com/album/cfg-kfc" target="_blank"><strong><em>CFG ≠ KFC</em></strong></a><br><iframe src="https://player.bilibili.com/player.html?bvid=BV1pJ411U7LT&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width:100%; max-width:640px; height:360px; margin-top:1rem;"></iframe></div>`,
+            images: [`./img/proimg/cfg1.jpg`, `./img/proimg/cfg2.jpg`], 
+            smallCfg1: true 
+        },
+        fmcs: { 
+            id: 'fmcs',
+            title: "上海自由音乐联盟 / Free Music Collective of Shanghai", 
+            heroImg: "./img/proimg/fmcs.jpg",
+            chinese: `<p><strong>上海自由音乐联盟</strong>是以上海为基地的实验音乐团体。他们没有固定的风格，没有团长，每个人都介入创作和表演。</p><p>目前成员：31、阿笛、费史、卖卖、陶轶、王田、徐程、周一、郑皓中、朱松杰、照骏园</p>`,
+            english: `<p><strong>Free Music Collective of Shanghai</strong> is a experimental music group based in Shanghai. They have no fixed style and no leader. Everyone participates in creating and performing.</p><p>Current members: 31, Adie, Fish, Jun-Y Ciao, MAI mai, Tao Yi, TIAN, Xu Cheng, Zhou Yi, Zheng Haozhong, Zhu Songjie</p>`,
+            links: `<div class="link-list"><a class="link-btn" href="https://fmcs.bandcamp.com/" target="_blank"><strong><em>FMCS WORKS</em></strong></a><br><iframe src="https://player.bilibili.com/player.html?bvid=BV1GV4y1y7U1&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width:100%; max-width:640px; height:360px; margin-top:1rem;"></iframe></div>`,
+            images: [] 
+        },
+        meltha: { 
+            id: 'meltha',
+            title: "梅儿萨戏馆 / Meltha Cinemah", 
+            heroImg: "./img/proimg/mcp.jpg",
+            chinese: `<p><strong>Meltha Cinemah</strong>是无有定所的意识集合体，他们是都市冗余、声音侠客和数字浪人，是虚幻的镜像和历史积淀的数据残渣收集控。</p><p><strong>Meltha Cinemah</strong>是由徐程组建的数字剧场组合，参与成员还有施胜杰和avoidNul。MELTHA CINEMAH是HAMLET MACHINE的文字调换，正如史学家们猜测HAMLET是AMLETH的文字调换。</p><p><strong>Meltha Cinemah</strong>以剧场作为媒介展开数字时代的跨学科创作实践。他们于2025年上演海纳·缪勒《哈姆雷特机器》第一幕，并于次年完成第二幕的演出。</p>`,
+            english: `<p><strong>Meltha Cinemah</strong> is a nomadic collective of consciousness; they are the urban surplus, sonic knights and digital vagabonds, illusory reflections, and fanatics devoted to collecting the data remnants of historical accumulation.</p><p><strong>Meltha Cinemah</strong> is a digital theatre collective founded by Xu Cheng, with additional members including Shi Shengjie and avoidNul. MELTHA CINEMAH is a transposition of the words 'HAMLET MACHINE', much as historians speculate that 'HAMLET' is a transposition of 'AMLETH'.</p><p>Using the theatre as their medium, <strong>Meltha Cinemah</strong> engages in interdisciplinary creative practice for the digital age. In 2025, they staged Act I of Heiner Müller's <strong>Hamlet Machine</strong>, and completed the performance of Act II the following year.</p>`,
+            links: `<div class="link-list"><iframe src="https://www.youtube-nocookie.com/embed/KVKNJKepdhE" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen style="width:100%; max-width:640px; height:360px;"></iframe></div>`,
+            images: [`./img/proimg/mc1.jpg`] 
+        },
+        shanghai5: { 
+            id: 'shanghai5',
+            title: "上海五重奏 / Shanghai Quintet", 
+            heroImg: "./img/proimg/sqp.jpg",
+            chinese: `<p>由Alfred Harth与照骏园、陶轶、徐程、卖卖于2011年在上海组建并在中国。其中的上海成员均来自此前成立的"上海自由音乐联盟"。</p><p>上海五重奏在2012年在中国展开巡演。上海五重奏于2016年10月在上海当代艺术博物馆演出。2017年由厂牌Kendra Steiner Editions发行为专辑《上山之音》。</p>`,
+            english: `<p>Formed in Shanghai in 2011 by Alfred Harth（<strong>A23H</strong>）, Jun-Y Ciao, Tao Yi, Xu Cheng and MAI mai. The Shanghai members all hail from the previously established <strong>Free Music Collective of Shanghai</strong>.</p><p><strong>Shanghai Quintet</strong> embarked on a tour of China in 2012. <strong>Shanghai Quintet</strong> performed at the Power Station of Art in Shanghai in October 2016. In 2017, the label Kendra Steiner Editions (KSE) released their album <strong>ShangShan</strong> (Stone Age Music).</p>`,
+            links: ``, 
+            images: [`./img/proimg/sqc.jpg`] 
+        },
+        tolerances: { 
+            id: 'tolerances',
+            title: "人面耐受 / Tolerances of the Human Face", 
+            heroImg: "./img/proimg/thf.jpg",
+            chinese: `<p><strong>人面耐受</strong>是徐程与卖卖的二人计划，旨在声音与记忆、场景的混合与反馈实验。<span class="small-italic">这个团名来自于J.G. Ballard的短篇小说。</span></p>`,
+            english: `<p><strong>Tolerances of the Human Face</strong> is a collaborative project by Xu Cheng and MAI mai, exploring the interplay and feedback between sound, memory and environments. <span class="small-italic">The name is taken from a short story by J.G. Ballard.</span></p>`,
+            links: ``, 
+            images: [] 
+        },
+        tmism: { 
+            id: 'tmism',
+            title: "马氏社会调制器 / The Mustangs in Social Modulator", 
+            heroImg: "./img/proimg/tmism1.gif",
+            chinese: `<p>组建于2011年上海，TMISM是上海声音艺术家徐程和黄磊(大小 aka. <strong>YAMAHAHA</strong>)的工业视觉、声音表演计划。他们大量运用VHS影像设备、模拟字幕仪、自制硬件设备等进行视觉反馈和声音调制嵌套进行创作和表演。</p><p><strong>TMISM</strong>一直处在一种信息轰炸的包围之中，他们关注并展示公共影像的滥用、权力表演、私人影像表演、公共暴力和欲望投射。</p><p><strong>TMISM</strong>阶段性活跃于上海的噪音领域，并多次进行公开表演，其中也有的客席乐手参与，如后来同二人一并参与<strong>上海自由音乐联盟</strong>的王田。<strong>TMISM</strong>是中国极少数运用私人与公共影像杂交的前鬼畜视听表演艺术组合。他们使用「工业噪音」这个几乎被人们遗忘的风格分类进行新的实践，在某种程度拓宽了中国当代艺术与中国地下音乐的连接。</p><p><strong>TMISM</strong>曾以数字DVD形式自发行作品，并同限量电子垃圾捆绑贩售。<strong>TMISM</strong>于2016年在<strong>Between Art Lab</strong>举办个展，其中包含大量现场生成的机械声音装置与电子设备，之后则渐渐淡出了活动场景。</p>`,
+            english: `<p>Formed in Shanghai in 2011, <strong>TMISM</strong> is an industrial visual and sound performance project by Shanghai-based sound artists Xu Cheng and Huang Lei (Da Xiao, aka <strong>YAMAHAHA</strong>). They make extensive use of VHS video equipment, analogue teleprompters and homemade hardware to create and perform works involving visual feedback and nested sound modulation.</p><p><strong>TMISM</strong> has long been immersed in a barrage of information; they focus on and showcase the misuse of public imagery, displays of power, the performance of private imagery, public violence and the projection of desire.</p><p><strong>TMISM</strong> was active in the Shanghai noise scene for a period, staging numerous public performances, some of which featured guest musicians such as TIAN, who later joined in the <strong>Free Music Collective of Shanghai</strong>. <strong>TMISM</strong> is one of the very few Chinese underground audiovisual performance art collectives to employ a hybrid of private and public imagery. By re-exploring the almost forgotten genre of 'industrial', they have, to some extent, broadened the connection between Chinese contemporary art and the country's underground music scene.</p><p><strong>TMISM</strong> previously self-released works on digital DVD, bundled with limited-edition electronic waste. In 2016, <strong>TMISM</strong> held a solo exhibition at <strong>Between Art Lab</strong>, featuring a large number of live-generated mechanical sound installations and electronic devices, after which they gradually withdrew from the scene.</p>`,
+            links: ``,
+            images: [`./img/proimg/tmdo.jpeg`, `./img/proimg/tmismlive.jpg`, `./img/proimg/tms1.jpg`, `./img/proimg/tms2.jpg`, `./img/proimg/tms4.jpg`, `./img/proimg/tmisml2.gif`, `./img/proimg/yamahaha.jpeg`, `./img/proimg/tmwk1.jpg`, `./img/proimg/tms3.jpg`, `./img/proimg/tmismdvd.jpg`, `./img/proimg/tmism2.gif`, `./img/proimg/tmism0.gif`] 
+        },
+        tn: { 
+            id: 'tn',
+            title: "虐待护士 / Torturing Nurse", 
+            heroImg: "./img/proimg/tn.jpg",
+            chinese: `<p><strong>TN</strong>是中国最有标志性的极端音乐与粗噪音符号代表。<strong>TN</strong>成立于2004年，由Junky发起。最初为Junky与其同为上海No-wave乐团<strong>Junkyard</strong>成员的吉他手Misuzu（范强）的二人噪音组合。</p><p>经由孙孟晋介绍，徐程与Junky相识。随后都参与了2005年的杭州二皮音乐节。彼时<strong>TN</strong>演出成员为：Junky—人声与电子、Misuzu—电吉他、Miriam—人声与贝斯、Wan Jun—人声。(同一阶段，ZK也会偶尔参与到表演中。)</p><p>后，徐程与<strong>TN</strong>有过多次合作表演，最终以Youki的名义加入<strong>TN</strong>。这个名字来自徐程更早年的网络代号：又一。</p><p>此时，<strong>TN</strong>的风格逐渐转变，乐器的成分逐渐减少，电子设备被大量运用 声音变得夸张而粗粝。徐程在这个阶段开始试图给<strong>TN</strong>加入更多新的尝试。比如日常物品、非乐器物件对表演的介入，其中大量警示胶带在现场的即兴运用几乎成为了<strong>TN</strong>当时的标志。又如，以廉价磁带学习机代替一般实验音乐所用的采样器进行极低保真即兴回授、采样和片段循环。</p><p>由于当时主要成员Misuzu和Miriam先后离队，<strong>TN</strong>成为了Junky和Youki的二人组，<strong>TN</strong>自此也失去了极高音部的凄厉女声直至蛱蝶的加入。二人固定每周进行排演，而从不对发生的声音进行任何探讨与交流，似乎一切都已在噪音中解决。彼时<strong>TN</strong>逐渐进入国际视野，并以更快更高更强的疯狂进度在全球发行大量小量出版。Junky对模拟设备与硬件有着某种原教旨主义的崇拜。我仍然清晰记得二人带着VHS录相机和用VHS录制的无视频声轨前往B6处进行母带处理。这种对硬件的执着实际上限制了徐程对更高速、更多可能、更大频宽的电脑程序、数字音频的实验，但也某种程度催生出徐程后续发起的如马氏社会调制器等等别类项目。</p><p>06年，蛱蝶加入，三人团稳定了相当长时间。蛱蝶赴美求学后，Arrebato加入又退出。<strong>TN</strong>再次成为Junky与Youki的二人组合，并稳定持续输出噪音并在多国巡演。</p><p>直至2013年，因为日常工作与照顾新生儿已几乎无暇进行其他项目的徐程逐渐淡出表演场景潜心个人创作，随后在2017年长期退出。<strong>TN</strong>成为Junky的单人噪音项目，延续至今，带上蓝色脸基尼的<strong>TN</strong>风格亦发展得与二人时期迥异，愈发迅猛极端而恒一。</p><p>回顾2005至2013年期间，徐程并不单是把<strong>TN</strong>中文名从折磨护士改为虐待护士。他的实践也从多个方面将个人对噪音的独特理解灌输进这个中国在高速极端开放化、极端理想化时代独特的地下声音容器进行实验，试图拓宽其声响与社会实践的范畴，是在对那个时代反复对喧闹日常的无言回应和反问。</p>`,
+            english: `<p><strong>TN</strong> is one of China's most iconic figures in extreme music and noise. <strong>TN</strong> was founded in 2004 by Junky. It began as a two-piece noise duo consisting of Junky and Misuzu (Fan Qiang), a guitarist who was also a member of the Shanghai No-wave band <strong>Junkyard</strong>.</p><p>Through an introduction by Sun Mengjin, Xu Cheng met Junky. Both subsequently took part in the 2005 Hangzhou 2pi Music Festival. At that time, <strong>TN</strong>'s performing line-up consisted of: Junky—vocals and electronics, Misuzu—electric guitar, Miriam—vocals and bass, and Wan Jun—vocals. (During this period, ZK would also occasionally join the performances.)</p><p>Subsequently, Xu Cheng collaborated with <strong>TN</strong> on numerous occasions, eventually joining the band under the name Youki. This name derives from Xu Cheng's earlier online alias: You Yi.</p><p>By this time, <strong>TN</strong>'s style had gradually shifted; the use of traditional instruments diminished, whilst electronic equipment was employed extensively, resulting in a sound that was exaggerated and raw. During this phase, Xu Cheng began experimenting with new approaches for <strong>TN</strong>. For instance, he incorporated everyday objects and non-musical items into their performances; the extensive, improvised use of warning tape at live shows almost became a hallmark of <strong>TN</strong> at the time. Another example was the use of cheap cassette players in place of the samplers typically employed in experimental music, to create ultra-low-fidelity improvised feedback, sampling and looping of fragments.</p><p>Following the successive departures of key members Misuzu and Miriam, <strong>TN</strong> became a duo comprising Junky and Youki, and the band lost its piercing female vocals in the highest registers until the arrival of Nymphalida. The pair rehearsed weekly without ever discussing or exchanging views on the sounds they produced; it seemed as though everything had already been resolved within the noise itself. Around this time, <strong>TN</strong> gradually entered the international spotlight, releasing a vast number of limited-edition releases globally at a frenetic pace that was ever faster, higher and stronger. Junky harboured a kind of fundamentalist reverence for analogue equipment and hardware. I still vividly recall the pair taking a VHS camcorder and VHS-recorded audio tracks (without video) to B6 for mastering. This fixation on hardware actually limited Xu Cheng's experimentation with computer programmes and digital audio—which offered higher speeds, greater possibilities and wider bandwidth—but to some extent it also gave rise to the alternative projects he subsequently initiated, such as the Mustangs in Social Modulator。</p><p>In 2006, Nymphalida joined, and the trio remained stable for quite some time. After Nymphalida went to the US to study, Arrebato joined and then left. <strong>TN</strong> once again became a duo comprising Junky and Youki, consistently producing noise music and touring across multiple countries.</p><p>By 2013, Xu Cheng—who had little time for other projects due to his day job and caring for a newborn—gradually withdrew from the performance scene to focus on personal creative work, before stepping back entirely in 2017. <strong>TN</strong> became Junky's solo noise project, continuing to the present day. The <strong>TN</strong> style, characterised by the blue balaclava, has evolved to differ markedly from the duo era, becoming increasingly ferocious, extreme and consistent.</p><p>Looking back at the period from 2005 to 2013, through Xu Cheng's practice, he infused his unique understanding of noise into this distinctive underground sonic vessel—a product of China's era of rapid, extreme openness and idealism—experimenting in multiple ways to broaden the scope of its sound and social practice. It was a silent response and a rhetorical question to the clamour of everyday life in that era.</p>`,
+            links: `<div class="link-list"><iframe src="https://www.youtube-nocookie.com/embed/nIrbwWCF5Dk" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen style="width:100%; max-width:640px; height:360px;"></iframe></div>`,
+            images: [] 
+        },
+        twonoughts: { 
+            id: 'twonoughts',
+            title: "Two Noughts / OO", 
+            heroImg: "./img/proimg/oo.jpg",
+            chinese: `<p><strong>Two Noughts</strong>的名字来源于Peter Greenaway的著名电影标题，同时作为<strong>TN</strong>的分支，它也是<strong>Torturing Nurse</strong>的含混发音变体。由徐程与Miriam成立于2005年，<strong>OO</strong>试图在细微的声音中找到结构，它是女声与数字合成器声音雕塑的混合体。在Miriam退出<strong>TN</strong>后项目不再继续。</p>`,
+            english: `<p>The name <strong>Two Noughts</strong> is derived from the title of Peter Greenaway's famous film; as a spin-off of <strong>TN</strong>, it is also a phonetic variation of <strong>Torturing Nurse</strong>. Founded in 2005 by Xu Cheng and Miriam, <strong>OO</strong> sought to find structure within subtle sounds, blending female vocals with sculpted digital synth textures. The project ceased after Miriam left <strong>TN</strong>.</p>`,
+            links:`<div class="link-list"><audio controls src="./media/oo.mp3">您的浏览器不支持音频播放。</audio></div>`, 
+            images: [] 
+        },
+        playrec: { 
+            id: 'playrec',
+            title: "play rec", 
+            heroImg: "./img/proimg/pr.gif", 
+            shrinkHero: true,
+            chinese: `<p><strong>play rec</strong>是由王长存和徐程于2017年创立的数字音乐厂牌。<strong>play rec</strong>以宽泛概念的电子音乐为实践范畴，搜罗、留存、发表以中国声音艺术、实验电子、噪音、田野录音等等电子媒介的声音档案，有时也组织相关活动。目前已发表了超过40张唱片。</p><p><strong>play rec</strong>成立的初衷是建立一种快速、低成本的发表机制，并留存当下值得被记录的中国电子声音。厂牌不拥有唱片版权，所有权归于艺术家、亦不作实体划发表。</p><p>在世纪初全球尚且留有90年代电子音乐极盛时期的余韵，一切开放而快速。比如那个时代Pete Namlook创立的<strong>FAX +49-69/450464</strong>就是一个绝佳案例。在中国如<strong>小声唱片</strong>、<strong>subjam</strong>以及<strong>post-concrete</strong>的数字音乐子牌<strong>Archival vinyl</strong>系列都是那个时代的闪光点。音乐的关键在于自由聆听欲而非占有欲。</p>`,
+            english: `<p><strong>play rec</strong> is a digital music label founded by Wang Changcun and Xu Cheng in 2017. Operating within the broad scope of electronic music, <strong>play rec</strong> collects, preserves and releases sound archives from electronic media such as sound art, experimental electronic music, noise and field recordings in China, whilst also occasionally organising related events. To date, the label has released over 40 records.</p><p><strong>play rec</strong> was founded with the aim of establishing a rapid, low-cost release mechanism to preserve contemporary Chinese electronic sounds worthy of documentation. The label does not own the copyright to the recordings; ownership remains with the artists, and no physical releases are produced.</p><p>At the turn of the century, the global scene still resonated with the afterglow of the 1990s---the golden age of electronic music---when everything was open and fast-paced. A prime example from that era is <strong>FAX +49-69/450464</strong>, founded by Pete Namlook. In China, labels such as <strong>Little Sound Records</strong>, <strong>subjam</strong>, and the <strong>Archival Vinyl</strong> series---a digital music sub-label of <strong>post-concrete</strong>---were shining lights of that era. The essence of music lies in the desire to listen freely, rather than in the desire to possess.</p>`,
+            links: `<div class="link-list"><a class="link-btn" href="https://playreclabel.bandcamp.com/" target="_blank"><strong>play rec bandcamp</strong></a></div>`,
+            images: [] 
+        },
+        dissolved: { 
+            id: 'dissolved',
+            title: "溶解折射 / Dissolved Refraction", 
+            heroImg: "./img/proimg/dr1.gif", 
+            dissolvedCenter: true,
+            chinese: `<div style="margin-top: 2rem;"><p><strong>溶解折射</strong>是由徐程与阿岭自2025年起联合策划的声音实验活动系列。它以在场者的空间与声音观念为切入点，试图践行某种纯粹化的声音整体体验。</p></div>
+            <div class="centered-symbol">☾</div>
+            <div class="centered-principle"><p><strong>折射溶解的实践准则：</strong></p></div>
+            <div class="centered-principle"><p>一、每场演出都是多位艺术家的整体合作。他们需要预先制定合作的方式和表演计划，而不是不同个人表演的直接拼盘。</p><p>二、每场只有一个不固定时长的曲目。</p><p>三、绝不重复同一阵容的表演。</p><p>四、表演者必须意识到这是与他人、与空间的整体合作，因此必须意识到空间声场在这里的重要性。</p><p>五、除了组织者的录制，现场不应进行拍摄及其他手机操作或无必要的交谈，这将视为对当下实在艺术生命的不尊重。而更应运用眼、耳、意识来体验这绝不可能重复的集体声音状态的正在发生。</p><p>六、演出的开始不以演出者的示意为节点，观众应有进入现场的意识，身处空间的一刻就视为演出进行，保持"五"的状态。</p><p>七、组织不定期，保持可能的懒惰与虚无。</p></div>
+            <div class="centered-symbol">☾</div>
+            <p>近几年我很少去看演出，甚至不太参与演出，想来有一些原因。一、我变得懒惰了，本来也不喜欢社交。二、太多价值判断，演出本不应有好坏的分别和预设，而当遭遇无法适应的演出而中途退场显得不礼貌而尴尬。三、太多人不再用心智来接受表演，而是用手机（已不再用耳朵，甚至是眼睛了）。那么是否还有一些可能来塑造一种理想态的新型声音演出呢？我想也许可以再试试......</p>
+            <p>也许会有一种表演，整个过程是一种团状的在场体验。观众们被吸纳进一个犹如海绵的声音体。因此通过声音，观众的意识是整体的，声音将表演者、观众、空间联结为一个临时的整体。不再有曲目、不再有最佳或正确的聆听位置而使得任何参与者的体验都成为唯一、不再有艺术家的分工和说明------没有预设的概念、不再有对的或错的聆听方式（只要你确实在聆听）、观众和艺术家将不再有期待、不再有区隔演出与日常的谢幕，这是一种团体的消耗与持续虚无的绵绵。</p>
+            <p>徐程 2025年</p>
+            <div style="margin-bottom: 2rem;"></div>
+            <div class="centered-symbol">☾</div>
+            <div style="margin-bottom: 2rem;"></div>
+            <p>开始组织演出以来，空间的选择慢慢成为我最先考虑的问题，“回南”的演出几乎都是本地之外的乐手来到上海，我不可能要求乐手们对陌生空间马上做出回应，但也观察到了一些声音语言的发展。徐程一提出这个想法后，我立刻想起演出和空间的共谋，想着“溶解折射”不分内外地裹挟整个系统，再一起实现注意力的挪用。</p>
+            <p>阿岭 2025 年</p>
+            <div style="margin-bottom: 2rem;"></div>
+            <div class="centered-symbol">☾</div>
+            <div style="margin-bottom: 2rem;"></div>`,
+            english: `<div><p><strong>Dissolved Refraction</strong> is a series of sound experiments co-curated by Xu Cheng and A Ling. Taking the spatial and sonic perceptions of the audience as its starting point, it seeks to realise a kind of purified, holistic sound experience.</p></div>
+            <div class="centered-symbol">☾</div>
+            <div class="centered-principle"><p><strong>The guiding principles of Dissolved Refraction:</strong></p></div>
+            <div class="centered-principle"><p>I. Each performance is a collaborative effort involving multiple artists. They must establish their methods of collaboration and performance plans in advance; it is not a mere compilation of individual performances.</p><p>II. Each performance consists of a single piece of indeterminate duration.</p><p>III. No performance by the same line-up shall ever be repeated.</p><p>IV. Performers must recognise that this is a holistic collaboration with others and with the space; consequently, they must be mindful of the significance of the spatial sound field.</p><p>V. Apart from recordings made by the organisers, no photography, mobile phone use or unnecessary conversation is permitted during the performance; such behaviour will be regarded as a lack of respect for the living art of the moment. Instead, one should employ one's eyes, ears and consciousness to experience the unfolding of this collective sonic state, which can never be repeated.</p><p>VI. The commencement of the performance is not marked by a signal from the performers; the audience should be mindful of entering the venue, regarding the moment they step into the space as the start of the performance, and maintaining the state described in 'V'.</p><p>VII. The organisation operates on an irregular basis, maintaining a sense of possible laziness and nothingness.</p></div>
+            <div class="centered-symbol">☾</div>
+            <p>In recent years, I have rarely attended performances, nor have I participated in them much; I suppose there are several reasons for this. First, I have become lazy, and I never particularly enjoyed socialising to begin with. Second, there are too many value judgements; performances should not be subject to distinctions of 'good' or 'bad' or to preconceptions, yet leaving midway through a performance one cannot adapt to feels impolite and awkward. Third, too many people no longer engage with the performance through their minds, but through their mobile phones (no longer using their ears, or even their eyes). So is there still a possibility of shaping a new kind of sound performance that embodies an ideal form? I think perhaps I could give it another go...</p>
+            <p>Perhaps there could be a performance where the entire process is a collective, immersive experience. The audience is drawn into a sound entity akin to a sponge. Thus, through sound, the audience's consciousness becomes unified; the sound connects the performers, the audience and the space into a temporary whole. There would be no set repertoire, no 'best' or 'correct' listening position---making every participant's experience unique; no division of labour or instructions from the artists---no preconceived notions, no 'right' or 'wrong' way to listen (as long as you are truly listening); the audience and artists would have no expectations; and there would be no curtain call to separate the performance from daily life. This is a collective exhaustion and a continuous, endless void.</p>
+            <p>Xu Cheng, 2025</p>
+            <div style="margin-bottom: 2rem;"></div>
+            <div class="centered-symbol">☾</div>
+            <div style="margin-bottom: 2rem;"></div>
+            <p>Since I began organising performances, the choice of venue has gradually become my primary consideration. For 'Hui Nan' performances, musicians almost always come to Shanghai from outside the city; I cannot expect them to respond immediately to an unfamiliar space, yet I have observed certain developments in the language of sound. As soon as Xu Cheng proposed this idea, I immediately thought of the collusion between performance and space, imagining 'Dissolution and Refraction' enveloping the entire system without distinction between inside and outside, and together achieving a diversion of attention.</p>
+            <p>A Ling, 2025</p>
+            <div style="margin-bottom: 2rem;"></div>
+            <div class="centered-symbol">☾</div>
+            <div style="margin-bottom: 2rem;"></div>`,
+            links: ``, 
+            images: [] 
+        },
+        noishanghai: { 
+            id: 'noishanghai',
+            title: "闹上海 / Noishanghai", 
+            heroImg: "./img/proimg/nsh.gif",
+            chinese: `<p><strong>闹上海</strong>是由徐程和Junky共同创建的以上海为实践场域的长期非盈利实验音乐与噪音平台。初始的目的为拢合上海的实验音乐乐手并进行资料汇编、展示与组织表演。域名NOIshanghai.org。当时徐程和Junky的主观想法非常简单：尽可能持续行动。</p><p>首次<strong>闹上海</strong>在36mm唱片店举行，并录制为限量33张的cdr在<strong>SHASHA</strong>厂牌发售。之后多年，<strong>闹上海</strong>以极其频繁的活动组织量进行了百场以上的活动。并为国际实验音乐、极端音乐在上海填补了平台的空缺。</p><p>2013年后，徐程退出了组织工作，但<strong>闹上海</strong>一直延续到了Junky、黄磊、舒骑、梅志勇联合运营的空间切割Trigger开张。对徐程而言<strong>闹上海</strong>的实践是一种非常宝贵的经验，它既是某种全球化地下交流的基础，又是前卫声音的实验田，诸多想法、实践在这个平台里趋于成熟与稳定，并衍生出新的可能。</p><p><strong>闹上海</strong>在整个中国声音艺术的历史语境里既重要又不必须是重要的。徐程始终秉承着反中心的原则运行着这些项目，希望参与者能以各种微观视角来对待这个开放、自由的平台。实验平台本意绝不应是塑造新审美和新的纪念碑、新的英雄，而应该立足于正在发生的实践以更开放的态度开拓可能性并促生意外认知。</p>`,
+            english: `<p><strong>NOIShanghai</strong> is a long-term, non-profit experimental music and noise platform founded by Xu Cheng and Junky, with Shanghai as its primary base of operations. Its initial aim was to bring together experimental musicians in Shanghai and to compile, showcase and organise performances. The domain name is NOIshanghai.org. At the time, Xu Cheng and Junky's guiding principle was very simple: to keep the project going for as long as possible.</p><p>The inaugural <strong>NOIShanghai</strong> event took place at the <strong>36mm</strong> record shop and was recorded as a limited edition of 33 CD-Rs, released on the SHASHA label. Over the following years, <strong>NOIShanghai</strong> organised over a hundred events at an exceptionally high frequency, filling a gap in the local scene for international experimental and extreme music in Shanghai.</p><p>After 2013, Xu Cheng stepped back from organisational duties, but <strong>NOIShanghai</strong> continued until the opening of <strong>Trigger</strong>. For Xu Cheng, the <strong>NOIShanghai</strong> initiative represented an invaluable experience; it served both as a foundation for a form of globalised underground exchange and as a testing ground for avant-garde sounds. Within the historical context of sound art in China as a whole, <strong>NOIShanghai</strong> is significant, yet it need not be the defining factor.</p><p>Xu Cheng has consistently run these projects adhering to the principle of anti-centralisation, hoping that participants will approach this open, free platform from a variety of micro-perspectives. The original intent of an experimental platform should never be to shape new aesthetics, new monuments or new heroes; rather, it should be grounded in ongoing practice, exploring possibilities with a more open attitude and fostering unexpected insights.</p>`,
+            links: ``,
+            images: [`./img/proimg/noi12.gif`, `./img/proimg/noi1.gif`, `./img/proimg/nshl1.jpg`, `./img/proimg/nshl2.jpg`, `./img/proimg/nshl3.jpg`, `./img/proimg/nshl4.jpg`, `./img/proimg/nshl5.jpg`, `./img/proimg/nshl6.jpg`, `./img/proimg/nshl7.jpg`, `./img/proimg/nshl8x.jpg`, `./img/proimg/no2.jpg`, `./img/proimg/nsh13.jpg`] 
+        },
+        readaloud: { 
+            id: 'readaloud',
+            title: "朗／读 / Read/Aloud", 
+            heroImg: "./img/proimg/ra1.jpg",
+            chinese: `<p><strong>朗／读</strong>是徐程和照骏园于2018年策划，由<strong>明室书房</strong>和<strong>时代精神在哪里？编辑部</strong>联合发起的项目。项目的发生地在明室书房，以及可能扩展至它所在的整条绍兴路。</p>
+            <p>明室书房是在绍兴路经营多年的半开放私人空间，这里面积不大，堆满了书，是书虫们的粮仓。绍兴路虽然不像以前书店林立，但是"书"仍是一个绕不开的主题，当然它也有市井生活和流行文化。明室书房和<strong>时代精神在哪里？编辑部</strong>共通的是试图抛开纷繁嘈杂的外部空间，建立一种向内的精神交流。向内并不意味封闭，而是强调小范围的实践。</p>
+            <p>如何在一堆书里表演？表演什么？是我们这次的课题。</p>
+            <p><strong>朗／读</strong>一共进行了6次活动，相关信息请查阅<strong>时代精神在哪里编辑部</strong>公号。</p>
+            <div class="link-list"><a class="link-btn" href="https://mp.weixin.qq.com/s/iJ_QQ1roK9FFH3JlnJ0ASw" target="_blank"><em>朗/读</em></a></div>`,
+            english: `<p><strong>Read/Aloud</strong> is a project conceived by Xu Cheng and Jun-Y Ciao, jointly initiated by Ming Room Bookroom and <strong>Where Is the Zeitgeist? editing office</strong>. The project is based at <strong>Ming Room</strong> Bookroom and may extend to the entire length of Shaoxing Road, where it is located.</p>
+            <p><strong>Ming Room</strong> Bookroom is a semi-open private space that has been operating on Shaoxing Road for many years. Though small in size, it is crammed with books, serving as a treasure trove for bookworms. Although Shaoxing Road is no longer lined with bookstores as it once was, "books" remain an inescapable theme here, alongside the vibrant local life and popular culture. What Ming Shi Bookroom and <strong>Where Is the Zeitgeist? editing office</strong> share is an attempt to set aside the chaotic external world and establish a form of inward spiritual exchange. This inward focus does not imply isolation, but rather emphasizes small-scale, intimate practices.</p>
+            <p>How to perform amidst a pile of books? And what to perform? These are the questions we are exploring in this project.</p>
+            <p>A total of six <strong>Read/Aloud</strong> events were held. For more information, please check <strong>Where Is the Zeitgeist? editing office.</strong></p>
+            <div class="link-list"><a class="link-btn" href="https://mp.weixin.qq.com/s/iJ_QQ1roK9FFH3JlnJ0ASw" target="_blank"><em>Read/Aloud</em></a></div>`,
+            links: ``,
+            images: [`./img/proimg/ra2.jpg`]
+        }
+    };
+
+    // ----------------------------- 核心渲染函数 (支持锚点ID) ------------------------------------
+    const contentDiv = document.getElementById('dynamicContent');
+    const welcomeDiv = document.getElementById('welcomeMessage');
+    const catalogSidebar = document.getElementById('catalogSidebar');
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+
+    if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            catalogSidebar.classList.toggle('open');
+            const isOpen = catalogSidebar.classList.contains('open');
+            mobileMenuBtn.querySelector('span:first-child').textContent = isOpen ? '◀️' : '▶️';
+        });
+    }
+
+    // 渲染指定项目 (添加独立ID)
+    function renderProject(projectId) {
+        const data = projectsData[projectId];
+        if (!data) return;
+        
+        let heroClass = 'hero-img';
+        if (data.enlargeHero) heroClass = 'hero-img-yyt';
+        if (data.shrinkHero) heroClass = 'hero-img-playrec';
+        if (data.dissolvedCenter) heroClass = 'hero-img-dissolved';
+        
+        let imagesHtml = '';
+        if (data.images && data.images.length) {
+            const bsodMarginClass = (projectId === 'bsod' && data.bsodBottomMargin) ? 'bsod-bottom-images' : '';
+            const yuyintangEnlarge = (projectId === 'yuyintang' && data.enlargeBottomImg) ? 'yuyintang-bottom-img' : '';
+            imagesHtml = `<div class="vertical-img-list ${bsodMarginClass} ${yuyintangEnlarge}">${data.images.map(src => {
+                let extraClass = '';
+                if (data.smallCfg1 && src.includes('cfg1.jpg')) extraClass = 'small-img-cfg1';
+                return `<img src="${src}" alt="" loading="lazy" class="${extraClass}">`;
+            }).join('')}</div>`;
+        }
+        
+        let heroImgHtml = '';
+        if (data.dissolvedCenter) {
+            heroImgHtml = ``;
+        } else {
+            heroImgHtml = `<img class="${heroClass}" src="${data.heroImg}" alt="" loading="lazy">`;
+        }
+        
+        const chineseEnglishDivider = `<div class="centered-symbol">☾</div>`;
+        
+        // 【关键】为每个项目详情容器添加独立的ID: project-{id}
+        const html = `
+            <div class="project-detail" id="project-${data.id}">
+                ${!data.dissolvedCenter ? heroImgHtml : ''}
+                <div class="chinese-text">${data.chinese}</div>
+                ${!data.dissolvedCenter ? chineseEnglishDivider : ''}
+                <div class="en-text" style="margin-top: 1rem;">${data.english}</div>
+                ${data.links ? data.links : ''}
+                ${imagesHtml}
+                ${data.dissolvedCenter ? `<img class="${heroClass}" src="${data.heroImg}" alt="" loading="lazy" style="margin-top: 6rem;">` : ''}
+            </div>
+        `;
+        welcomeDiv.style.display = 'none';
+        contentDiv.innerHTML = html;
+        
+        // 高亮目录项
+        document.querySelectorAll('.catalog-link, .catalog-link-italic').forEach(link => link.classList.remove('active'));
+        const activeLink = document.querySelector(`[data-project="${projectId}"]`);
+        if (activeLink) activeLink.classList.add('active');
+        
+        // 滚动到内容区顶部
+        document.querySelector('.content-area').scrollTop = 0;
+        
+        // 如果手机端菜单打开则自动关闭
+        if (window.innerWidth <= 800 && catalogSidebar.classList.contains('open')) {
+            catalogSidebar.classList.remove('open');
+            if (mobileMenuBtn) mobileMenuBtn.querySelector('span:first-child').textContent = '▶️';
+        }
+        
+        // 触发高亮闪烁效果
+        const targetElement = document.getElementById(`project-${data.id}`);
+        if (targetElement) {
+            targetElement.classList.remove('highlight-target');
+            // 强制重绘以重新触发动画
+            void targetElement.offsetWidth;
+            targetElement.classList.add('highlight-target');
+        }
+    }
+
+    function resetToWelcome() {
+        welcomeDiv.style.display = 'block';
+        contentDiv.innerHTML = '';
+        document.querySelectorAll('.catalog-link, .catalog-link-italic').forEach(link => link.classList.remove('active'));
+        // 清除URL中的锚点
+        if (window.location.hash) {
+            history.replaceState(null, '', window.location.pathname);
+        }
+    }
+
+    // ----------------------------- 修正: 解决锚点首次加载失效问题 ------------------------------------
+    // 核心思路: 拦截浏览器默认锚点行为，在项目渲染完成后手动定位
+    function handleHashChange() {
+        const hash = window.location.hash;
+        if (hash && hash.startsWith('#project-')) {
+            const projectId = hash.replace('#project-', '');
+            if (projectsData[projectId]) {
+                // 先渲染项目
+                renderProject(projectId);
+                // 延迟执行滚动，确保 DOM 已更新
+                setTimeout(() => {
+                    const target = document.getElementById(`project-${projectId}`);
+                    if (target) {
+                        // 使用 scrollIntoView 进行平滑滚动
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }, 150);
+                return;
+            }
+        }
+        // 如果没有匹配的锚点，显示欢迎页
+        resetToWelcome();
+    }
+
+    // 监听 hash 变化 (用户手动点击目录或前进后退)
+    window.addEventListener('hashchange', handleHashChange);
+
+    // 【关键修改】页面加载时，阻止浏览器默认锚点行为，由 JavaScript 接管
+    window.addEventListener('DOMContentLoaded', function() {
+        // 如果URL中有锚点且以 #project- 开头
+        if (window.location.hash && window.location.hash.startsWith('#project-')) {
+            // 1. 保存当前锚点
+            const hash = window.location.hash;
+            // 2. 立即清除URL中的锚点，阻止浏览器默认滚动
+            history.replaceState(null, '', window.location.pathname);
+            // 3. 等待页面初始渲染完成，再手动处理锚点
+            // 使用 setTimeout 确保所有脚本执行完毕
+            setTimeout(function() {
+                // 恢复锚点并触发跳转
+                history.replaceState(null, '', hash);
+                handleHashChange();
+            }, 200);
+        } else {
+            // 无锚点则正常显示欢迎页
+            resetToWelcome();
+        }
+    });
+
+    // ----------------------------- 目录点击事件 ------------------------------------
+    document.querySelectorAll('.catalog-link, .catalog-link-italic').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const projectId = link.getAttribute('data-project');
+            if (projectId && projectsData[projectId]) {
+                // 更新URL锚点而不触发页面刷新
+                history.pushState(null, '', `#project-${projectId}`);
+                renderProject(projectId);
+            }
+        });
+    });
+
+    // ----------------------------- 内部关键词链接支持 ------------------------------------
+    function initInternalLinks() {
+        document.querySelectorAll('[data-internal-link]').forEach(el => {
+            const targetId = el.getAttribute('data-internal-link');
+            if (targetId && projectsData[targetId]) {
+                el.style.cursor = 'pointer';
+                el.classList.add('internal-link');
+                el.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    history.pushState(null, '', `#project-${targetId}`);
+                    renderProject(targetId);
+                });
+            }
+        });
+    }
+
+    // 在每次渲染后重新绑定内部链接
+    const originalRender = renderProject;
+    renderProject = function(projectId) {
+        originalRender(projectId);
+        setTimeout(initInternalLinks, 50);
+    };
+
+    // 初始化时绑定内部链接
+    setTimeout(initInternalLinks, 100);
+</script>
+</body>
+</html>
