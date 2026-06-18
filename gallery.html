@@ -1,27 +1,25 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <!-- Tab 装饰小图标：与 Bio 页一致 -->
     <link rel="icon" type="image/png" href="./img/icon.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>徐程 · 相册 | 声音档案</title>
+    <title>徐程 · 相册 · 视听漫游者</title>
     <style>
+        /* ---------- 原有样式 (保持不变) ---------- */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
         html, body {
             height: 100%;
             width: 100%;
             background-color: #000000;
         }
-
         body {
             background-color: #000000;
             font-family: system-ui, -apple-system, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Noto Sans', sans-serif;
@@ -31,7 +29,6 @@
             position: relative;
             min-height: 100vh;
         }
-
         ::-webkit-scrollbar {
             width: 6px;
             background-color: #0a0e12;
@@ -40,8 +37,6 @@
             background-color: #2c3e4e;
             border-radius: 8px;
         }
-
-        /* 固定背景图 (不滚动) */
         .gallery-bg {
             position: fixed;
             top: 0;
@@ -52,8 +47,6 @@
             background: #000 url('./img/galimg/gabg.jpg') center center / cover no-repeat;
             opacity: 0.7;
         }
-
-        /* 所有内容置于背景之上 */
         .content-wrapper {
             position: relative;
             z-index: 1;
@@ -62,8 +55,6 @@
             padding: 2rem 2rem 100px 2rem;
             min-height: 100vh;
         }
-
-        /* ---------- 左侧固定装饰小图片 ---------- */
         .fixed-left-deco {
             position: fixed;
             left: 0px;
@@ -73,18 +64,32 @@
             width: auto;
             height: auto;
             opacity: 0.85;
+            animation: decoSlowMove 900s linear forwards;
         }
         .fixed-left-deco img {
             display: block;
             width: auto;
             height: auto;
-            max-width: 56px;            /* 原 max-width: 80px，缩小到70% => 56px */
+            max-width: 56px;
             will-change: transform;
             transform-origin: top left;
-            /* 动画由 JS 动态注入 */
         }
-
-        /* 图片列表容器 */
+        @keyframes decoSlowMove {
+            0% { transform: translateY(0); }
+            5% { transform: translateY(5vh); }
+            12% { transform: translateY(6vh); }
+            18% { transform: translateY(12vh); }
+            26% { transform: translateY(13vh); }
+            34% { transform: translateY(20vh); }
+            42% { transform: translateY(21vh); }
+            50% { transform: translateY(30vh); }
+            58% { transform: translateY(31vh); }
+            66% { transform: translateY(42vh); }
+            74% { transform: translateY(43vh); }
+            82% { transform: translateY(55vh); }
+            90% { transform: translateY(56vh); }
+            100% { transform: translateY(110vh); }
+        }
         .gallery-list {
             display: flex;
             flex-direction: column;
@@ -92,7 +97,6 @@
             gap: 3rem;
             padding: 1rem 0;
         }
-
         .gallery-item {
             display: flex;
             flex-direction: column;
@@ -100,7 +104,6 @@
             width: 100%;
             max-width: 800px;
         }
-
         .gallery-item img {
             width: 100%;
             height: auto;
@@ -110,7 +113,6 @@
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
             background-color: #0a0e12;
         }
-
         .caption {
             width: 100%;
             margin-top: 0.8rem;
@@ -123,8 +125,61 @@
             font-weight: 300;
             letter-spacing: 0.2px;
         }
-
-        /* 底部固定栏 */
+        #scroll-trigger {
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #scroll-trigger img {
+            max-width: 80%;
+            max-height: 80%;
+            width: auto;
+            height: auto;
+            display: block;
+            border: none;
+            box-shadow: none;
+            background: transparent;
+            opacity: 0.6;
+            transition: opacity 0.5s ease;
+        }
+        #scroll-trigger.active img {
+            opacity: 1;
+        }
+        #wanderer-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 150;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 2s ease;
+            overflow: hidden;
+        }
+        #wanderer-container.visible {
+            opacity: 1;
+        }
+        .wanderer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 56px;
+            height: auto;
+            pointer-events: none;
+            will-change: transform;
+        }
+        .wanderer img {
+            display: block;
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            opacity: 0.8;
+            border: none;
+            box-shadow: none;
+        }
         .bottom-fixed-bar {
             position: fixed;
             bottom: 0;
@@ -134,7 +189,7 @@
             backdrop-filter: blur(8px);
             border-top: 1px solid rgba(140, 170, 190, 0.25);
             padding: 0.6rem 1rem;
-            z-index: 100;
+            z-index: 200;
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
@@ -156,8 +211,6 @@
         .sep-space {
             margin-left: 4rem;
         }
-
-        /* 手机竖屏优化 */
         @media (max-width: 800px) {
             .content-wrapper {
                 padding: 1.2rem 1rem 120px 1rem;
@@ -186,226 +239,466 @@
             .fixed-left-deco {
                 display: none;
             }
+            .wanderer {
+                width: 32px;
+            }
+            #scroll-trigger img {
+                max-width: 90%;
+                max-height: 70%;
+            }
+        }
+
+        /* ---------- 入口页面 (覆盖层) ---------- */
+        #entry-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10000;
+            background: rgba(0, 0, 0, 0.92);
+            backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: opacity 1.5s ease, visibility 1.5s ease;
+            user-select: none;
+        }
+        #entry-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        #entry-screen .album-image {
+            max-width: 70%;
+            max-height: 60vh;
+            width: auto;
+            height: auto;
+            display: block;
+            border: none;
+            box-shadow: none;
+            margin-bottom: 2rem;
+            opacity: 0.85;
+        }
+        #entry-screen .entry-text {
+            font-size: 1.2rem;
+            font-weight: 300;
+            letter-spacing: 6px;
+            color: #c2d4f0;
+            border-bottom: 1px solid rgba(140, 170, 190, 0.2);
+            padding-bottom: 0.5rem;
+            transition: opacity 0.3s;
+        }
+        #entry-screen .entry-sub {
+            margin-top: 1rem;
+            font-size: 0.75rem;
+            opacity: 0.4;
+            letter-spacing: 3px;
+            color: #8da1bd;
+        }
+        @media (max-width: 600px) {
+            #entry-screen .album-image {
+                max-width: 85%;
+                max-height: 50vh;
+            }
+            #entry-screen .entry-text {
+                font-size: 1rem;
+                letter-spacing: 4px;
+            }
         }
     </style>
 </head>
 <body>
 
-<!-- 固定背景图 -->
-<div class="gallery-bg"></div>
+    <!-- ---------- 入口页面 ---------- -->
+    <div id="entry-screen">
+        <img class="album-image" src="./img/galimg/album.gif" alt="album cover" loading="lazy">
+        <div class="entry-text">点击进入相册</div>
+        <div class="entry-sub">click to enter</div>
+    </div>
 
-<!-- 左侧固定装饰小图片 (缩小到70%) -->
-<div class="fixed-left-deco" id="decoContainer">
-    <img id="decoImg" src="./img/bluesnear.gif" alt="装饰" loading="lazy" onerror="this.style.opacity='0.5';">
-</div>
+    <div class="gallery-bg"></div>
+    <div class="fixed-left-deco">
+        <img src="./img/bluesnear.gif" alt="装饰" loading="lazy" onerror="this.style.opacity='0.5';">
+    </div>
 
-<!-- 主要内容 -->
-<div class="content-wrapper">
-    <div class="gallery-list">
-        <!-- 01 -->
-        <div class="gallery-item">
-            <img src="./img/galimg/01.jpg" alt="Xu Cheng, Dajuin Yao, and Zhang Jungang at Sonart 2003 Beijing" loading="lazy">
-            <div class="caption">Xu Cheng, Dajuin Yao, and Zhang Jungang at Sonart 2003 Beijing</div>
-        </div>
+    <div class="content-wrapper">
+        <div class="gallery-list">
+            <!-- 01 ~ 21 图片 -->
+            <div class="gallery-item">
+                <img src="./img/galimg/01.jpg" alt="Xu Cheng, Dajuin Yao, and Zhang Jungang at Sonart 2003 Beijing" loading="lazy">
+                <div class="caption">Xu Cheng, Dajuin Yao, and Zhang Jungang at Sonart 2003 Beijing</div>
+            </div>
+            <div class="gallery-item">
+                <img src="./img/galimg/02.jpg" alt="Zhang Anding (Zafka), Xu Cheng, and Dajun Yao at Sonart 20th Anniversary 2023 Shanghai" loading="lazy">
+                <div class="caption">Zhang Anding (Zafka), Xu Cheng, and Dajun Yao at Sonart 20th Anniversary 2023 Shanghai</div>
+            </div>
+            <div class="gallery-item">
+                <img src="./img/galimg/03.jpg" alt="Xu Cheng, Dajuin Yao, Ma Nan" loading="lazy">
+                <div class="caption">Xu Cheng, Dajuin Yao, Ma Nan</div>
+            </div>
+            <div class="gallery-item">
+                <img src="./img/galimg/04.jpg" alt="Mei Zhiyong, Junky, Huang Lei, Xu Cheng" loading="lazy">
+                <div class="caption">Mei Zhiyong, Junky, Huang Lei, Xu Cheng</div>
+            </div>
+            <div class="gallery-item">
+                <img src="./img/galimg/05.jpg" alt="Mei Zhiyong & Xu Cheng" loading="lazy">
+                <div class="caption">Mei Zhiyong & Xu Cheng</div>
+            </div>
+            <div class="gallery-item">
+                <img src="./img/galimg/06.webp" alt="Li Jianhong, Gu Lifen, Jin Shan, Xu Cheng, and Wang Changcun at Faxi Temple, Hangzhou, 2005" loading="lazy">
+                <div class="caption">Li Jianhong, Gu Lifen, Jin Shan, Xu Cheng, and Wang Changcun at Faxi Temple, Hangzhou, 2005</div>
+            </div>
+            <div class="gallery-item">
+                <img src="./img/galimg/07.webp" alt="SIC (Chen Wei), Li Jianhong, and Xu Cheng at the 'You and Me' Music Festival 2024" loading="lazy">
+                <div class="caption">SIC (Chen Wei), Li Jianhong, and Xu Cheng at the "You and Me" Music Festival 2024</div>
+            </div>
+            <div class="gallery-item">
+                <img src="./img/galimg/08.webp" alt="Nicolas Collins, Huang Lei, Xu Cheng, and Junky at NOIShanghai" loading="lazy">
+                <div class="caption">Nicolas Collins, Huang Lei, Xu Cheng, and Junky at NOIShanghai</div>
+            </div>
+            <div class="gallery-item">
+                <img src="./img/galimg/09.webp" alt="Sin:Ned, Otomo Yoshihide and Xu Cheng at the 2013 MiJi Festival Shanghai" loading="lazy">
+                <div class="caption">Sin:Ned, Otomo Yoshihide and Xu Cheng at the 2013 MiJi Festival Shanghai</div>
+            </div>
+            <div class="gallery-item">
+                <img src="./img/galimg/10.webp" alt="Toshiji Mikawa and Xu Cheng at 2024 a Bunch of Noise Shanghai" loading="lazy">
+                <div class="caption">Toshiji Mikawa and Xu Cheng at 2024 a Bunch of Noise Shanghai</div>
+            </div>
+            <div class="gallery-item">
+                <img src="./img/galimg/11.webp" alt="Xu Cheng, Yan Jun and Hankil Ryu" loading="lazy">
+                <div class="caption">Xu Cheng, Yan Jun and Hankil Ryu</div>
+            </div>
+            <div class="gallery-item">
+                <img src="./img/galimg/12.webp" alt="Shanghai Quintet - Tao Yi, Xu Cheng, Jun-Y Ciao, A23H, MAI mai 2016 at PSA Shanghai" loading="lazy">
+                <div class="caption">Shanghai Quintet - Tao Yi, Xu Cheng, Jun-Y Ciao, A23H, MAI mai 2016 at PSA Shanghai</div>
+            </div>
+            <div class="gallery-item">
+                <img src="./img/galimg/13.webp" alt="Xu Cheng as an audience in Trigger" loading="lazy">
+                <div class="caption">Xu Cheng as an audience in Trigger</div>
+            </div>
+            <div class="gallery-item">
+                <img src="./img/galimg/14.webp" alt="TN at Taipei" loading="lazy">
+                <div class="caption">TN at Taipei</div>
+            </div>
+            <div class="gallery-item">
+                <img src="./img/galimg/15.webp" alt="Xu Cheng + Zafka + Lin Zhiying + RONEZ + Zhong Minjie + Chen Wei @ Awakening Battersea, Shanghai, China" loading="lazy">
+                <div class="caption">Xu Cheng + Zafka + Lin Zhiying + RONEZ + Zhong Minjie + Chen Wei @ Awakening Battersea, Shanghai, China</div>
+            </div>
+            <div class="gallery-item">
+                <img src="./img/galimg/16.webp" alt="Polystyrene Box Quartet- TIAN, Jun-Y Ciao, Adi, Xu Cheng at MING Room" loading="lazy">
+                <div class="caption">Polystyrene Box Quartet- TIAN, Jun-Y Ciao, Adi, Xu Cheng at MING Room</div>
+            </div>
+            <div class="gallery-item">
+                <img src="./img/galimg/17.webp" alt="MAI mai, Li Jianhong and Xu Cheng at a Bunch of Noise 2023" loading="lazy">
+                <div class="caption">MAI mai, Li Jianhong and Xu Cheng at a Bunch of Noise 2023</div>
+            </div>
+            <div class="gallery-item">
+                <img src="./img/galimg/18.webp" alt="TN&TMISM&RHYTHMICSHIT - Xu Cheng, Huang Lei, Junky" loading="lazy">
+                <div class="caption">TN&TMISM&RHYTHMICSHIT - Xu Cheng, Huang Lei, Junky</div>
+            </div>
+            <div class="gallery-item">
+                <img src="./img/galimg/19.webp" alt="Xu Cheng & William Bennett(Cut Hands,ex-White House) in Lyon 2013" loading="lazy">
+                <div class="caption">Xu Cheng & William Bennett(Cut Hands,ex-White House) in Lyon 2013</div>
+            </div>
+            <div class="gallery-item">
+                <img src="./img/galimg/20.webp" alt="Andy Guhl(Voice Crack) + Franq + Junky + Xu Cheng Paris 2013" loading="lazy">
+                <div class="caption">Andy Guhl(Voice Crack) + Franq + Junky + Xu Cheng Paris 2013</div>
+            </div>
+            <div class="gallery-item">
+                <img src="./img/galimg/21.webp" alt="Xu Cheng & Gregorio Samsaro 2022" loading="lazy">
+                <div class="caption">Xu Cheng & Gregorio Samsaro 2022</div>
+            </div>
 
-        <!-- 02 -->
-        <div class="gallery-item">
-            <img src="./img/galimg/02.jpg" alt="Zhang Anding (Zafka), Xu Cheng, and Dajun Yao at Sonart 20th Anniversary 2023 Shanghai" loading="lazy">
-            <div class="caption">Zhang Anding (Zafka), Xu Cheng, and Dajun Yao at Sonart 20th Anniversary 2023 Shanghai</div>
-        </div>
-
-        <!-- 03 -->
-        <div class="gallery-item">
-            <img src="./img/galimg/03.jpg" alt="Xu Cheng, Dajuin Yao, Ma Nan" loading="lazy">
-            <div class="caption">Xu Cheng, Dajuin Yao, Ma Nan</div>
-        </div>
-
-        <!-- 04 -->
-        <div class="gallery-item">
-            <img src="./img/galimg/04.jpg" alt="Mei Zhiyong, Junky, Huang Lei, Xu Cheng" loading="lazy">
-            <div class="caption">Mei Zhiyong, Junky, Huang Lei, Xu Cheng</div>
-        </div>
-
-        <!-- 05 -->
-        <div class="gallery-item">
-            <img src="./img/galimg/05.jpg" alt="Mei Zhiyong & Xu Cheng" loading="lazy">
-            <div class="caption">Mei Zhiyong & Xu Cheng</div>
-        </div>
-
-        <!-- 06 -->
-        <div class="gallery-item">
-            <img src="./img/galimg/06.webp" alt="Li Jianhong, Gu Lifen, Jin Shan, Xu Cheng, and Wang Changcun at Faxi Temple, Hangzhou, 2005" loading="lazy">
-            <div class="caption">Li Jianhong, Gu Lifen, Jin Shan, Xu Cheng, and Wang Changcun at Faxi Temple, Hangzhou, 2005</div>
-        </div>
-
-        <!-- 07 -->
-        <div class="gallery-item">
-            <img src="./img/galimg/07.webp" alt="SIC (Chen Wei), Li Jianhong, and Xu Cheng at the 'You and Me' Music Festival 2024" loading="lazy">
-            <div class="caption">SIC (Chen Wei), Li Jianhong, and Xu Cheng at the "You and Me" Music Festival 2024</div>
-        </div>
-
-        <!-- 08 -->
-        <div class="gallery-item">
-            <img src="./img/galimg/08.webp" alt="Nicolas Collins, Huang Lei, Xu Cheng, and Junky at NOIShanghai" loading="lazy">
-            <div class="caption">Nicolas Collins, Huang Lei, Xu Cheng, and Junky at NOIShanghai</div>
-        </div>
-
-        <!-- 09 -->
-        <div class="gallery-item">
-            <img src="./img/galimg/09.webp" alt="Sin:Ned, Otomo Yoshihide and Xu Cheng at the 2013 MiJi Festival Shanghai" loading="lazy">
-            <div class="caption">Sin:Ned, Otomo Yoshihide and Xu Cheng at the 2013 MiJi Festival Shanghai</div>
-        </div>
-
-        <!-- 10 -->
-        <div class="gallery-item">
-            <img src="./img/galimg/10.webp" alt="Toshiji Mikawa and Xu Cheng at 2024 a Bunch of Noise Shanghai" loading="lazy">
-            <div class="caption">Toshiji Mikawa and Xu Cheng at 2024 a Bunch of Noise Shanghai</div>
-        </div>
-
-        <!-- 11 -->
-        <div class="gallery-item">
-            <img src="./img/galimg/11.webp" alt="Xu Cheng, Yan Jun and Hankil Ryu" loading="lazy">
-            <div class="caption">Xu Cheng, Yan Jun and Hankil Ryu</div>
-        </div>
-
-        <!-- 12 -->
-        <div class="gallery-item">
-            <img src="./img/galimg/12.webp" alt="Shanghai Quintet - Tao Yi, Xu Cheng, Jun-Y Ciao, A23H, MAI mai 2016 at PSA Shanghai" loading="lazy">
-            <div class="caption">Shanghai Quintet - Tao Yi, Xu Cheng, Jun-Y Ciao, A23H, MAI mai 2016 at PSA Shanghai</div>
-        </div>
-
-        <!-- 13 -->
-        <div class="gallery-item">
-            <img src="./img/galimg/13.webp" alt="Xu Cheng as an audience in Trigger" loading="lazy">
-            <div class="caption">Xu Cheng as an audience in Trigger</div>
-        </div>
-
-        <!-- 14 -->
-        <div class="gallery-item">
-            <img src="./img/galimg/14.webp" alt="TN at Taipei" loading="lazy">
-            <div class="caption">TN at Taipei</div>
-        </div>
-
-        <!-- 15 -->
-        <div class="gallery-item">
-            <img src="./img/galimg/15.webp" alt="Xu Cheng + Zafka + Lin Zhiying + RONEZ + Zhong Minjie + Chen Wei @ Awakening Battersea, Shanghai, China" loading="lazy">
-            <div class="caption">Xu Cheng + Zafka + Lin Zhiying + RONEZ + Zhong Minjie + Chen Wei @ Awakening Battersea, Shanghai, China</div>
-        </div>
-
-        <!-- 16 -->
-        <div class="gallery-item">
-            <img src="./img/galimg/16.webp" alt="Polystyrene Box Quartet- TIAN, Jun-Y Ciao, Adi, Xu Cheng at MING Room" loading="lazy">
-            <div class="caption">Polystyrene Box Quartet- TIAN, Jun-Y Ciao, Adi, Xu Cheng at MING Room</div>
-        </div>
-
-        <!-- 17 -->
-        <div class="gallery-item">
-            <img src="./img/galimg/17.webp" alt="MAI mai, Li Jianhong and Xu Cheng at a Bunch of Noise 2023" loading="lazy">
-            <div class="caption">MAI mai, Li Jianhong and Xu Cheng at a Bunch of Noise 2023</div>
-        </div>
-
-        <!-- 18 -->
-        <div class="gallery-item">
-            <img src="./img/galimg/18.webp" alt="TN&TMISM&RHYTHMICSHIT - Xu Cheng, Huang Lei, Junky" loading="lazy">
-            <div class="caption">TN&TMISM&RHYTHMICSHIT - Xu Cheng, Huang Lei, Junky</div>
-        </div>
-
-        <!-- 19 -->
-        <div class="gallery-item">
-            <img src="./img/galimg/19.webp" alt="Xu Cheng & William Bennett(Cut Hands,ex-White House) in Lyon 2013" loading="lazy">
-            <div class="caption">Xu Cheng & William Bennett(Cut Hands,ex-White House) in Lyon 2013</div>
-        </div>
-
-        <!-- 20 -->
-        <div class="gallery-item">
-            <img src="./img/galimg/20.webp" alt="Andy Guhl(Voice Crack) + Franq + Junky + Xu Cheng Paris 2013" loading="lazy">
-            <div class="caption">Andy Guhl(Voice Crack) + Franq + Junky + Xu Cheng Paris 2013</div>
-        </div>
-
-        <!-- 21 -->
-        <div class="gallery-item">
-            <img src="./img/galimg/21.webp" alt="Xu Cheng & Gregorio Samsaro 2022" loading="lazy">
-            <div class="caption">Xu Cheng & Gregorio Samsaro 2022</div>
+            <!-- ========== 滚动触发器 ========== -->
+            <div id="scroll-trigger">
+                <img src="./img/galimg/$.gif" alt="触发符号" loading="lazy">
+            </div>
         </div>
     </div>
-</div>
 
-<!-- 底部固定栏 -->
-<div class="bottom-fixed-bar">
-    <a href="./bio.html">传记 / Biography</a>
-    <a href="./projects.html">项目 / Projects</a>
-    <a href="./works.html">作品 / Works</a>
-    <a href="./writings.html">写作 / Writings</a>
-    <span class="sep-space"></span>
-    <a href="mailto:xuchengnotes@sina.com">e-mail</a>
-    <a href="https://www.instagram.com/xcfoto/" target="_blank">Ins</a>
-    <a href="https://space.bilibili.com/30430328" target="_blank">BiliBili</a>
-    <a href="https://mp.weixin.qq.com/s?__biz=Mzg2MTU0MTQ2OA==&mid=2247485320&idx=1&sn=25ae395578b77e57841d71b6292d89fa" target="_blank">WechatPP</a>
-    <a href="https://github.com/dustymirror" target="_blank">Github</a>
-</div>
+    <div class="bottom-fixed-bar">
+        <a href="./bio.html">传记 / Biography</a>
+        <a href="./projects.html">项目 / Projects</a>
+        <a href="./works.html">作品 / Works</a>
+        <a href="./writings.html">写作 / Writings</a>
+        <span class="sep-space"></span>
+        <a href="mailto:xuchengnotes@sina.com">e-mail</a>
+        <a href="https://www.instagram.com/xcfoto/" target="_blank">Ins</a>
+        <a href="https://space.bilibili.com/30430328" target="_blank">BiliBili</a>
+        <a href="https://mp.weixin.qq.com/s?__biz=Mzg2MTU0MTQ2OA==&mid=2247485320&idx=1&sn=25ae395578b77e57841d71b6292d89fa" target="_blank">WechatPP</a>
+        <a href="https://github.com/dustymirror" target="_blank">Github</a>
+    </div>
 
-<script>
-    (function() {
-        const deco = document.getElementById('decoContainer');
-        const decoImg = document.getElementById('decoImg');
-        if (!deco || !decoImg) return;
+    <div id="wanderer-container"></div>
 
-        // 获取图片实际高度，计算需要移动的总距离（移出窗口底部）
-        function getTotalMove() {
-            const imgHeight = decoImg.offsetHeight || 56; // 默认高度也相应调整为缩小后的值
-            return window.innerHeight + imgHeight;
-        }
+    <script>
+        (function() {
+            'use strict';
 
-        function applyAnimation() {
-            const totalMove = getTotalMove();
-            
-            const styleId = 'deco-animation-style';
-            let style = document.getElementById(styleId);
-            if (!style) {
-                style = document.createElement('style');
-                style.id = styleId;
-                document.head.appendChild(style);
+            // ---------- 视觉漫游者配置 ----------
+            const TOTAL = 1124;
+            const IMG_SRC = './img/bluesnear.gif';
+            const ITEM_SIZE = 56;
+            const MIN_SPEED = 0.03;
+            const MAX_SPEED = 0.18;
+
+            // ---------- 声音引擎配置 ----------
+            const VOICES = 11;
+            const FREQS = [
+                116.54, 123.47, 130.81, 138.59, 146.83, 155.56, 164.81, 174.61, 185.00, 196.00, 207.65
+            ];
+            const FADE_IN_DURATION = 5;
+            const VOL_MIN = 0.03;
+            const VOL_MAX = 0.20;
+            const UPDATE_INTERVAL_MIN = 2;
+            const UPDATE_INTERVAL_MAX = 5;
+
+            // DOM 元素
+            const entryScreen = document.getElementById('entry-screen');
+            const trigger = document.getElementById('scroll-trigger');
+            const container = document.getElementById('wanderer-container');
+            let wanderers = [];
+            let audioCtx = null;
+            let oscillatorData = [];
+            let masterGain = null;
+            let isAudioInitialized = false;
+            let isTriggered = false;
+            let animationId = null;
+
+            // ---------- 初始化音频上下文 (在用户点击入口时调用) ----------
+            function initAudio() {
+                if (isAudioInitialized) return;
+                try {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    masterGain = audioCtx.createGain();
+                    masterGain.gain.value = 0;
+                    masterGain.connect(audioCtx.destination);
+
+                    for (let i = 0; i < VOICES; i++) {
+                        const osc1 = audioCtx.createOscillator();
+                        const osc2 = audioCtx.createOscillator();
+                        const osc3 = audioCtx.createOscillator();
+                        const gainNode = audioCtx.createGain();
+                        gainNode.gain.value = 0.05;
+
+                        osc1.type = 'sawtooth';
+                        osc2.type = 'sine';
+                        osc3.type = 'square';
+                        osc1.frequency.value = FREQS[i];
+                        osc2.frequency.value = FREQS[i] * 1.003;
+                        osc3.frequency.value = FREQS[i] * 0.997;
+
+                        osc1.connect(gainNode);
+                        osc2.connect(gainNode);
+                        osc3.connect(gainNode);
+                        gainNode.connect(masterGain);
+
+                        osc1.start();
+                        osc2.start();
+                        osc3.start();
+
+                        oscillatorData.push({
+                            gain: gainNode,
+                            currentVolume: 0.05,
+                            targetVolume: 0.05,
+                            updateTimer: 0,
+                            nextUpdateInterval: 2 + Math.random() * 3,
+                            freq: FREQS[i]
+                        });
+                    }
+
+                    isAudioInitialized = true;
+                    console.log('🎵 音频引擎已初始化');
+                } catch (e) {
+                    console.error('❌ 音频初始化失败:', e);
+                }
             }
 
-            // 保持相同的复杂节奏，总时长 900 秒 (15分钟)
-            style.textContent = `
-                @keyframes decoSlowMove {
-                    0% { transform: translateY(0); }
-                    5% { transform: translateY(${totalMove * 0.03}px); }
-                    12% { transform: translateY(${totalMove * 0.035}px); }
-                    18% { transform: translateY(${totalMove * 0.08}px); }
-                    26% { transform: translateY(${totalMove * 0.085}px); }
-                    34% { transform: translateY(${totalMove * 0.13}px); }
-                    42% { transform: translateY(${totalMove * 0.135}px); }
-                    50% { transform: translateY(${totalMove * 0.20}px); }
-                    58% { transform: translateY(${totalMove * 0.205}px); }
-                    66% { transform: translateY(${totalMove * 0.28}px); }
-                    74% { transform: translateY(${totalMove * 0.285}px); }
-                    82% { transform: translateY(${totalMove * 0.38}px); }
-                    90% { transform: translateY(${totalMove * 0.385}px); }
-                    100% { transform: translateY(${totalMove * 1.0}px); }
+            // ---------- 更新振荡器音量 (随机震荡) ----------
+            function updateOscillatorVolumes(timeDelta) {
+                if (!isAudioInitialized || !isTriggered) return;
+                for (let i = 0; i < oscillatorData.length; i++) {
+                    const data = oscillatorData[i];
+                    data.updateTimer += timeDelta;
+                    if (data.updateTimer >= data.nextUpdateInterval) {
+                        data.targetVolume = VOL_MIN + Math.random() * (VOL_MAX - VOL_MIN);
+                        data.nextUpdateInterval = UPDATE_INTERVAL_MIN + Math.random() * (UPDATE_INTERVAL_MAX - UPDATE_INTERVAL_MIN);
+                        data.updateTimer = 0;
+                    }
+                    const current = data.gain.gain.value;
+                    const diff = data.targetVolume - current;
+                    data.gain.gain.value += diff * 0.08;
                 }
-                .fixed-left-deco {
-                    animation: decoSlowMove 900s linear forwards;
+            }
+
+            // ---------- 启动淡入 ----------
+            function startFadeIn() {
+                if (!isAudioInitialized || !masterGain) return;
+                const now = audioCtx.currentTime;
+                masterGain.gain.setValueAtTime(0.001, now);
+                masterGain.gain.linearRampToValueAtTime(0.35, now + FADE_IN_DURATION);
+                console.log('🔊 开始 5 秒淡入');
+            }
+
+            // ---------- 滚动触发视觉 + 音频逻辑 ----------
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && entry.intersectionRatio >= 0.8) {
+                        if (!isTriggered) {
+                            trigger.classList.add('active');
+                            console.log('✅ 触发器可见，激活视觉漫游者！');
+                            activateWanderers();
+
+                            // 如果音频已初始化且处于运行状态，直接淡入
+                            if (isAudioInitialized && audioCtx && audioCtx.state === 'running') {
+                                startFadeIn();
+                            } else if (isAudioInitialized && audioCtx && audioCtx.state === 'suspended') {
+                                audioCtx.resume().then(() => {
+                                    startFadeIn();
+                                }).catch(err => console.warn('自动恢复音频失败:', err));
+                            }
+                        }
+                    } else {
+                        trigger.classList.remove('active');
+                    }
+                });
+            }, {
+                threshold: [0.8],
+                rootMargin: '0px'
+            });
+            observer.observe(trigger);
+
+            // ---------- 激活视觉漫游者 ----------
+            function activateWanderers() {
+                if (isTriggered) return;
+                isTriggered = true;
+
+                container.classList.add('visible');
+                container.style.opacity = '1';
+                container.style.pointerEvents = 'none';
+
+                let winWidth = window.innerWidth;
+                let winHeight = window.innerHeight;
+                const fragment = document.createDocumentFragment();
+
+                for (let i = 0; i < TOTAL; i++) {
+                    const startX = Math.random() * (winWidth - ITEM_SIZE);
+                    const startY = -ITEM_SIZE - Math.random() * 200;
+                    const speed = MIN_SPEED + Math.random() * (MAX_SPEED - MIN_SPEED);
+                    const opacity = 0.5 + Math.random() * 0.5;
+
+                    const div = document.createElement('div');
+                    div.className = 'wanderer';
+                    div.style.width = ITEM_SIZE + 'px';
+                    div.style.left = startX + 'px';
+                    div.style.top = '0px';
+                    div.style.opacity = opacity;
+
+                    const img = document.createElement('img');
+                    img.src = IMG_SRC;
+                    img.alt = '漫游者';
+                    img.loading = 'lazy';
+                    img.draggable = false;
+
+                    div.appendChild(img);
+                    fragment.appendChild(div);
+
+                    wanderers.push({
+                        el: div,
+                        x: startX,
+                        y: startY,
+                        size: ITEM_SIZE,
+                        vy: speed,
+                    });
                 }
-            `;
 
-            deco.style.animation = 'none';
-            void deco.offsetHeight;
-            deco.style.animation = 'decoSlowMove 900s linear forwards';
-        }
+                container.appendChild(fragment);
+                console.log('✅ 1124 个视觉漫游者已创建');
+            }
 
-        if (decoImg.complete) {
-            applyAnimation();
-        } else {
-            decoImg.onload = applyAnimation;
-        }
+            // ---------- 主循环 ----------
+            let lastTime = performance.now();
 
-        window.addEventListener('resize', function() {
-            applyAnimation();
-        });
-    })();
-</script>
+            function animate(currentTime) {
+                const timeDelta = (currentTime - lastTime) / 1000;
+                lastTime = currentTime;
+
+                const currentWidth = window.innerWidth;
+                const currentHeight = window.innerHeight;
+
+                for (let i = 0; i < wanderers.length; i++) {
+                    const w = wanderers[i];
+                    w.y += w.vy;
+
+                    if (w.y > currentHeight) {
+                        w.y = -w.size - Math.random() * 100;
+                        w.x = Math.random() * (currentWidth - w.size);
+                        w.vy = MIN_SPEED + Math.random() * (MAX_SPEED - MIN_SPEED);
+                        w.el.style.left = w.x + 'px';
+                    }
+
+                    w.el.style.transform = `translate(${w.x}px, ${w.y}px)`;
+                }
+
+                if (isTriggered && isAudioInitialized) {
+                    updateOscillatorVolumes(timeDelta);
+                }
+
+                animationId = requestAnimationFrame(animate);
+            }
+
+            // ---------- 窗口尺寸变化处理 ----------
+            window.addEventListener('resize', function() {
+                if (!isTriggered) return;
+                const winWidth = window.innerWidth;
+                const winHeight = window.innerHeight;
+                for (let i = 0; i < wanderers.length; i++) {
+                    const w = wanderers[i];
+                    if (w.x + w.size > winWidth) {
+                        w.x = winWidth - w.size;
+                        w.el.style.left = w.x + 'px';
+                    }
+                    if (w.y > winHeight) {
+                        w.y = -w.size - Math.random() * 50;
+                    }
+                }
+            });
+
+            // ---------- 点击入口页面：初始化音频 + 淡出入口 ----------
+            entryScreen.addEventListener('click', function(e) {
+                // 1. 初始化音频 (如果尚未初始化)
+                if (!isAudioInitialized) {
+                    initAudio();
+                }
+                // 2. 恢复音频上下文 (如果挂起)
+                if (audioCtx && audioCtx.state === 'suspended') {
+                    audioCtx.resume().then(() => {
+                        console.log('🔊 音频已通过入口点击恢复');
+                        // 如果漫游者已经触发，立即开始淡入
+                        if (isTriggered && isAudioInitialized) {
+                            startFadeIn();
+                        }
+                    }).catch(err => console.warn('恢复音频失败:', err));
+                } else if (audioCtx && audioCtx.state === 'running') {
+                    if (isTriggered && isAudioInitialized && masterGain && masterGain.gain.value < 0.01) {
+                        startFadeIn();
+                    }
+                }
+                // 3. 隐藏入口页面
+                entryScreen.classList.add('hidden');
+            });
+
+            // ---------- 启动动画 ----------
+            setTimeout(() => {
+                animate(performance.now());
+            }, 200);
+
+            console.log('📷 Gallery 加载完毕。点击入口图片进入相册并唤醒音频，滚动到底部触发视觉+声音彩蛋。');
+        })();
+    </script>
 
 </body>
 </html>
