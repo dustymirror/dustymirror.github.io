@@ -7,9 +7,9 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>徐程 · 相册 · 视听漫游者</title>
+    <title>徐程 · 相册 · 声波潜游</title>
     <style>
-        /* ---------- 原有样式 (保持不变) ---------- */
+        /* ---------- 基础样式 ---------- */
         * {
             margin: 0;
             padding: 0;
@@ -528,7 +528,7 @@
             let isTriggered = false;
             let animationId = null;
 
-            // ---------- 初始化音频上下文 (在用户点击入口时调用) ----------
+            // ---------- 初始化音频上下文 ----------
             function initAudio() {
                 if (isAudioInitialized) return;
                 try {
@@ -577,7 +577,7 @@
                 }
             }
 
-            // ---------- 更新振荡器音量 (随机震荡) ----------
+            // ---------- 更新振荡器音量 ----------
             function updateOscillatorVolumes(timeDelta) {
                 if (!isAudioInitialized || !isTriggered) return;
                 for (let i = 0; i < oscillatorData.length; i++) {
@@ -603,7 +603,7 @@
                 console.log('🔊 开始 5 秒淡入');
             }
 
-            // ---------- 滚动触发视觉 + 音频逻辑 ----------
+            // ---------- 滚动触发逻辑 ----------
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting && entry.intersectionRatio >= 0.8) {
@@ -746,12 +746,32 @@
                 entryScreen.classList.add('hidden');
             });
 
+            // ---------- 【新增】页面可见性变化：离开时暂停音频，返回时恢复 ----------
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) {
+                    // 页面被隐藏（切换标签页/应用）：暂停音频
+                    if (audioCtx && audioCtx.state === 'running') {
+                        audioCtx.suspend().then(() => {
+                            console.log('🔇 音频已暂停 (页面不可见)');
+                        });
+                    }
+                } else {
+                    // 页面重新可见：恢复音频
+                    if (audioCtx && audioCtx.state === 'suspended') {
+                        audioCtx.resume().then(() => {
+                            console.log('🔊 音频已恢复 (页面可见)');
+                        });
+                    }
+                }
+            });
+
             // ---------- 启动动画 ----------
             setTimeout(() => {
                 animate(performance.now());
             }, 200);
 
             console.log('📷 Gallery 加载完毕。点击入口图片进入相册并唤醒音频，滚动到底部触发视觉+声音彩蛋。');
+            console.log('📱 移动端切换标签页时音频将自动暂停，返回时恢复。');
         })();
     </script>
 
