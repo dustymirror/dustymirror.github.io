@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <link rel="icon" type="image/png" href="./img/icon.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>徐程 · 文字谱 | 声音档案</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; width: 100%; background-color: #000000; }
+        body {
+            background-color: #000000;
+            font-family: system-ui, -apple-system, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Noto Sans', sans-serif;
+            color: #8e9eaf;
+            overflow: hidden;
+            position: relative;
+            height: 100vh;
+        }
+        ::-webkit-scrollbar { width: 6px; background-color: #0a0e12; }
+        ::-webkit-scrollbar-thumb { background-color: #2c3e4e; border-radius: 8px; }
+
+        /* ========== 左侧固定图片：缓慢向上移动 ========== */
+        .left-fixed-img {
+            position: fixed; left: 0; top: 0; width: 174px; height: 100vh;
+            background-color: #000; overflow: hidden; z-index: 10;
+        }
+        .slow-rise-img {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: auto;
+            display: block;
+            animation: slideUp 1500s linear infinite;
+        }
+        @keyframes slideUp {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-100%); }
+        }
+
+        /* 中间分类栏 */
+        .catalog-sidebar {
+            position: fixed; left: 174px; top: 0; width: 340px;
+            background-color: #050505; height: 100vh; overflow-y: auto;
+            padding: 2rem 1.2rem 2rem 1.5rem;
+            border-right: 1px solid rgba(140, 170, 190, 0.15);
+            z-index: 10; transition: transform 0.3s ease;
+        }
+        .catalog-sidebar::-webkit-scrollbar { width: 3px; }
+        .catalog-title { font-size: 1.2rem; font-weight: 600; color: #a2bbdf; margin-bottom: 0.3rem; }
+        .catalog-subtitle {
+            font-size: 0.8rem; color: #6a7c8f; margin-bottom: 1rem;
+            font-style: italic;
+        }
+        .catalog-list { list-style: none; margin: 0; padding-left: 0.3rem; }
+        .catalog-list li { margin-bottom: 0.4rem; }
+        .catalog-item-wrapper { display: block; cursor: pointer; }
+        .catalog-link {
+            font-size: 0.78rem; color: #8da1bd; text-decoration: none;
+            transition: color 0.2s; display: inline-block; line-height: 1.5;
+        }
+        .catalog-item-wrapper:hover .catalog-link { color: #c0d0e8; }
+        .catalog-link.active { color: #e0eef8; font-weight: 500; }
+
+        /* 右侧内容栏 */
+        .content-area {
+            position: absolute; left: 514px; right: 0; top: 0; bottom: 0;
+            overflow-y: auto; padding: 2rem 2.5rem 100px 2.5rem;
+            background-color: #000000;
+        }
+
+        /* ========== 所有文字居中 ========== */
+        .welcome-text {
+            max-width: 900px; margin: 2rem auto 0 auto;
+            text-align: center;
+        }
+        .welcome-text p {
+            font-size: 1rem; line-height: 1.9; margin-bottom: 1rem;
+            color: #b0c0d4;
+        }
+
+        .ts-item {
+            max-width: 900px; margin: 0 auto 5rem auto;
+            padding-bottom: 3rem;
+            border-bottom: 1px solid rgba(140, 170, 190, 0.1);
+            text-align: center;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .ts-number {
+            font-size: 0.85rem; font-weight: 600; color: #a2bbdf;
+            letter-spacing: 1px; margin-bottom: 0.4rem;
+        }
+        .ts-title {
+            font-size: 1.3rem; font-weight: 600; color: #c2d4f0;
+            margin-bottom: 0.4rem;
+        }
+        .ts-subtitle {
+            font-size: 0.9rem; color: #8da1bd; margin-bottom: 0.6rem;
+            font-style: italic;
+        }
+        .ts-meta {
+            font-size: 0.8rem; color: #6a7c8f; margin-bottom: 1.5rem;
+        }
+        .ts-item p {
+            font-size: 0.95rem; line-height: 2; margin-bottom: 1rem;
+            color: #b8c7dd;
+            white-space: pre-wrap;
+            text-align: center;
+        }
+        .ts-item .en-text p { color: #a5b6ce; }
+
+        .centered-symbol { text-align: center; margin: 2rem 0; color: #8da1bd; }
+        strong, b { color: #c2d4f0; }
+
+        /* 底部固定栏 */
+        .bottom-fixed-bar {
+            position: fixed; bottom: 0; left: 514px; right: 0;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px);
+            border-top: 1px solid rgba(140, 170, 190, 0.25);
+            padding: 0.6rem 1rem; z-index: 100;
+            display: flex; flex-wrap: wrap; justify-content: center;
+            align-items: center; gap: 1.2rem; font-size: 0.85rem;
+        }
+        .bottom-fixed-bar a {
+            color: #8da1bd; text-decoration: none; transition: color 0.2s;
+            font-weight: 300; font-style: italic; white-space: nowrap;
+        }
+        .bottom-fixed-bar a:hover { color: #c0d0e8; }
+        .sep-space { margin-left: 4rem; }
+
+        /* 手机悬浮目录按钮 */
+        .mobile-menu-btn {
+            display: none; position: fixed; top: 1rem; left: 1rem;
+            z-index: 200; background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(140, 170, 190, 0.3);
+            border-radius: 30px; padding: 0.4rem 0.8rem;
+            cursor: pointer; align-items: center; gap: 6px;
+        }
+        .mobile-menu-btn span:first-child { font-size: 1rem; color: #cbdae9; }
+        .mobile-menu-btn span:last-child { font-size: 0.9rem; color: #cbdae9; }
+
+        /* 手机竖屏 */
+        @media (max-width: 800px) {
+            .left-fixed-img { display: none; }
+            .catalog-sidebar {
+                transform: translateX(-100%); width: 280px; left: 0;
+                z-index: 150; padding-top: 5rem;
+            }
+            .catalog-sidebar.open { transform: translateX(0); }
+            .mobile-menu-btn { display: flex; }
+            .content-area {
+                position: relative; left: 0;
+                padding: 4rem 1rem 120px 1rem; width: 100%;
+                overflow-y: auto !important; height: 100vh;
+            }
+            .bottom-fixed-bar {
+                left: 0; padding: 0.5rem; gap: 0.5rem;
+                font-size: 0.75rem; justify-content: center; flex-wrap: wrap;
+            }
+            .bottom-fixed-bar a:nth-child(4) {
+                flex-basis: 100%; text-align: center; margin-bottom: 0.2rem;
+            }
+            .sep-space { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- 左侧固定底图 -->
+<div class="left-fixed-img">
+    <img class="slow-rise-img" src="./img/workimg/lbg.gif" alt="左侧装饰" loading="lazy" onerror="this.style.opacity='0.3'">
+</div>
+
+<!-- 中间分类栏 -->
+<div class="catalog-sidebar" id="catalogSidebar">
+    <div class="catalog-title">文字谱 Text Scores</div>
+    <div class="catalog-subtitle">XTS0001 — XTS0130</div>
+    <ul class="catalog-list" id="tsList"></ul>
+    <div style="height: 2rem;"></div>
+    <div style="height: 2rem;"></div>
+</div>
+
+<div class="mobile-menu-btn" id="mobileMenuBtn">
+    <span>▶️</span>
+    <span>Scores</span>
+</div>
+
+<!-- 右侧内容区 -->
+<div class="content-area" id="contentArea">
+    <div id="welcomeMessage" class="welcome-text">
+        <p>文字谱（Text Scores）是徐程自2019年起系统开展的创作方向，以文本作为声音行动的指令或框架。以下收录了 XTS0001 至 XTS0130 共 130 件文字谱作品。</p>
+        <p>Text Scores represent a systematic creative direction Xu Cheng has pursued since 2019, using text as instruction or framework for sonic action. The following collects 130 text scores, XTS0001 through XTS0130.</p>
+    </div>
+    <div id="dynamicContent"></div>
+</div>
+
+<!-- 底部固定栏 -->
+<div class="bottom-fixed-bar">
+    <a href="./bio.html">传记 / Biography</a>
+    <a href="./projects.html">项目 / Projects</a>
+    <a href="./gallery.html">相册 / Photo Gallery</a>
+    <a href="./works.html">作品 / Works</a>
+    <a href="./writings.html">写作 / Writings</a>
+    <span class="sep-space"></span>
+    <a href="mailto:xuchengnotes@sina.com">e-mail</a>
+    <a href="https://www.instagram.com/xcfoto/" target="_blank">Ins</a>
+    <a href="https://space.bilibili.com/30430328" target="_blank">BiliBili</a>
+    <a href="https://mp.weixin.qq.com/s?__biz=Mzg2MTU0MTQ2OA==&mid=2247485320&idx=1&sn=25ae395578b77e57841d71b6292d89fa" target="_blank">WechatPP</a>
+    <a href="https://github.com/dustymirror" target="_blank">Github</a>
+</div>
+
+<script>
+    // ==================== 文字谱数据 ====================
+    var scores = [
+        { num: 'XTS0001', title: '对位法 / Counterpoint', meta: '2018–2019 · 为两位表演者、节拍器和对称的房间而作',
+          zh: '于房间内，两位异性表演者。\n以自己的心律预调节拍器速度。\n背靠背站立于房间的中央，闭合双眼。\n二人同时打开节拍器，并向正前方走去直至房间边缘。\n通过听觉判断对方所处的位置，并与之作镜像对称运动跟随之。\n相互跟随、模仿对方细微的位置运动。几许仅是猜测。\n若再次发生身体接触，旋即背对立定。\n打开双眼，任节拍器摆动十二次，\n指尖终止那节拍，\n回归寂静。',
+          en: 'In a room, two performers of opposite sexes.\nPre-set the metronome speed according to one\'s own heartbeat.\nStand back-to-back in the centre of the room with eyes closed.\nBoth start the metronome simultaneously and walk straight ahead until they reach the edge of the room.\nUsing their sense of hearing to judge the other\'s position, they move in mirror-symmetrical motion, following one another.\nThey follow and mimic each other\'s subtle positional movements. To some extent, this is merely a matter of guesswork.\nShould physical contact occur again, they immediately turn their backs to one another and stand still.\nThey open their eyes, allow the metronome to swing twelve times,\nstop the beat with their fingertips,\nand return to silence.' },
+
+        { num: 'XTS0002', title: '交换的秩序 / The Order of Exchange', meta: '2019 · 为观众和秩序而作的音乐',
+          zh: '把所有的观众分成三组。\n以一个所有人可辨识的信号为节拍器。\n自定一个起始速率，如BPM90。\n依秩序，\n第一组齐声口诵"我的"，\n第二组齐声口诵"就是"，\n第三组齐声口诵"你的"，\n第三组齐声口诵"你的"，\n第二组齐声口诵"就是"，\n第一组齐声口诵"我的"。\n重复整个秩序。\n\n过程中指挥者调控节拍器，\n使速度渐快到达某个想象的极限，再使速度渐慢恢复原本，\n指挥者的节拍操控不得被演奏中秩序的错乱或重建等影响。\n如是多次反复直至指挥者满足。',
+          en: 'Divide the entire audience into three groups.\nUse a signal recognisable to everyone as a metronome.\nSet a starting tempo, such as 90 BPM.\nIn accordance with the sequence,\nGroup One chants in unison \'mine\',\nGroup Two chants in unison \'is\',\nGroup Three chants in unison \'yours\',\nGroup Three chants in unison \'yours\',\nGroup Two chants in unison \'is\',\nGroup One chants in unison \'mine\'.\nRepeat the entire sequence.\n\nThroughout the process, the conductor controls the metronome,\ngradually increasing the tempo until it reaches an imagined limit, then gradually slowing it down to return to the original tempo;\nthe conductor\'s control of the tempo must not be affected by any disruption or reorganisation of the sequence during the performance.\nThis is repeated several times until the conductor is satisfied.' },
+
+        { num: 'XTS0003', title: '你听到的这个房间不是我听到的', meta: '2019 · 不向Alvin Lucier致敬 · 不为观众而作的音乐',
+          zh: '在一个房间内，共处一个演奏者和观众，之间无有隔阂。\n演奏者可使用任何乐器演奏任何音乐，但演奏者之外无人能听到这音乐。\n演奏者必须听到这音乐并完成演奏。',
+          en: 'In a room, a performer and an audience member coexist, with no barrier between them.\nThe performer may play any music on any instrument, but no one other than the performer can hear this music.\nThe performer must hear this music and complete the performance.' },
+
+        { num: 'XTS0004', title: '肃立', meta: '2019 · 为一个表演者而作的音乐',
+          zh: '整个过程必须确保以严格遵守当地相关法律为前提。\n要求全场寂静。表演者肃立，\n依书面文本庄严逐字朗读当地《国歌法》全文。\n肃穆播放当地《国歌》。\n利用任何手段使播放的声音缓缓上升至能及的最高处。',
+          en: 'Throughout the entire process, strict compliance with relevant local laws must be ensured.\nComplete silence is required in the venue. The performer shall stand solemnly\nand read out the full text of the local \'National Anthem Laws\' word for word, in accordance with the written text.\nThe local national anthem shall be played solemnly.\nBy any means necessary, the volume of the recording shall be gradually increased to the highest possible level.' },
+
+        { num: 'XTS0005', title: '枕脉 / Pulse on Pillow', meta: '2019 · 为物质生命进程而作的音乐',
+          zh: '每晚，\n右侧卧，\n右耳枕于右手脉搏处。\n调整手、耳位置，\n直至听到肌肉的颤动及脉搏的跳动。\n睡去。',
+          en: 'Every night,\nlie on your right side,\nresting your right ear against the pulse in your right hand.\nAdjust the position of your hand and ear\nuntil you can hear the trembling of the muscles and the beating of your pulse.\nFall asleep.' },
+
+        { num: 'XTS0006', title: 'Prelude', meta: 'OCT 2019 · 为钢琴和一个表演者而作 · 向Pauline Olivieros致敬',
+          zh: '自右侧顺序将所有黑色琴键涂成白色，\n自左侧顺序将所有白色琴键涂成红色，\n以金色装饰中央C键的表面。\n（若你愿意，随即演奏"the new right of spring" by Pauline Olivieros，若不愿意，远离一切。）',
+          en: 'Paint all the black keys white, starting from the right,\npaint all the white keys red, starting from the left,\nand adorn the surface of the central C key with gold.\n(If you wish, play \'the new right of spring\' by Pauline Olivieros immediately; if not, walk away from it all.)' },
+
+        { num: 'XTS0007', title: '划痕，三次相遇 / Scratches, Three Encounters', meta: 'Nov 2019 · 为吉他二重奏和空的房间而作',
+          zh: '一对吉他手，一同面壁于房间某面墙的中央，\n以琴头抵墙，各向两侧逆向行进而划出长音。\n绕四周而行，相会，避让，而声音不止。\n唯三次相遇，能终了一切。\n\n（变奏：反回起点，重复，如是三三。）',
+          en: 'A pair of guitarists stand facing the centre of one wall in the room,\ntheir guitar heads pressed against the wall, each moving in opposite directions to produce sustained notes.\nThey walk around the room, meeting and giving way to one another, whilst the sound continues unceasingly.\nOnly three encounters can bring everything to an end.\n\n(Variation: Return to the starting point, repeat; thus three times.)' },
+
+        { num: 'XTS0008', title: '一瓶 / A Bottle', meta: 'Nov 2019 · 为管乐二重奏而作 · 献给没腿的马',
+          zh: '倆弟兄一道，买好一瓶（饮料）。\n两只杯子、三把矮凳、一间房间。\n侬一半，吾一半，麦管要插好。\n面对面，比一比，大家来吸气。\n呼气，\n吸气，\n呼气，\n吸气，\n呼气，\n吸气，\n呼气。\n麦管衔好，\n侬吸气吾呼气，\n侬呼气吾吸气，\n侬吸气吾呼气，\n侬呼气吾吸气，\n侬吸气吾呼气，\n侬呼气吾吸气，\n啊吓，勿当心吸到一口！\n罪过，个么要重来了咯！\n侬吸气吾呼气，\n侬呼气吾吸气，\n侬吸气吾呼气，\n侬呼气吾吸气，\n侬吸气吾呼气，\n侬呼气吾吸气......\n吾停勿下来了，呜噜噜噜......\n哦吆，侬慢交、侬慢交、阿拉一道来。\n奈么通通停勿下来了，呜噜噜噜，呜噜噜噜............\n好了好了，勿吹了、滂一杯。',
+          en: 'Two brothers together, having bought a bottle (of drink).\nTwo glasses, three stools, a room.\nYou take half, I take half; make sure the straws are in place.\nFace to face, let\'s see who\'s better---let\'s all take a breath.\nExhale, inhale, exhale, inhale, exhale, inhale, exhale.\nStraws firmly in place,\nyou inhale, I exhale, you exhale, I inhale, you inhale, I exhale,\nyou exhale, I inhale, you inhale, I exhale, you exhale, I inhale,\nOh dear, be careful not to inhale a mouthful!\nOh dear, we\'ll have to start all over again!\nYou breathe in, I breathe out, You breathe out, I breathe in,\nYou breathe in, I breathe out, You breathe out, I breathe in,\nYou breathe in, I breathe out, You breathe out, I breathe in......\nI can\'t stop now, whee-whee-whee...\nOh dear, take it slow, take it slow, let\'s do this together.\nNow we\'ve all stopped, blub blub - blub-blub, glug-burble-bloop............\nRight, right, stop blowing now, let\'s have a drink.' },
+
+        { num: 'XTS0009', title: '门 / Door', meta: 'Nov 2019 · 为房间、门和观众而作',
+          zh: '寂静\n一分钟\n以猛力关门演奏\n|X------XX------------||\n全体观众闻声倒地',
+          en: 'Silence\nOne minute\nPerformed by slamming the door shut\n|X------XX------------||\nThe entire audience falls to the floor at the sound' },
+
+        { num: 'XTS0010', title: '忧伤的冥想 / A Melancholy Meditation', meta: 'Nov 2019 · 为将成敌人的友谊',
+          zh: '于心中生出一音\n持续之\n缓慢吸气随之开眼\n缓慢呼气随之合眼\n反复之\n观音之变化于心',
+          en: 'A sound arises within the heart\nIt continues\nInhale slowly, then open your eyes\nExhale slowly, then close your eyes\nRepeat\nObserve the changes within the heart' },
+
+        { num: 'XTS0011', title: '涂黑 / Black Out', meta: 'Mar 2020 · 为图书馆而作',
+          zh: '任何读到此谱的人，\n都可以去图书馆借一册《世界音乐史》。\n悄悄涂黑其中一页，\n立刻归还。\n每年如是一次。',
+          en: 'Anyone who reads this score\nmay go to the library and borrow a copy of *A History of World Music*.\nQuietly black out one page,\nthen return it immediately.\nOnce a year.' },
+
+        { num: 'XTS0012', title: '火祭 / Fire Offering', meta: 'Mar 2020 · 为孩子而作',
+          zh: '每年录下你的孩子焚烧他(她)的音乐课本的声音。',
+          en: 'Each year, record the sound of your child burning his or her music textbook.' },
+
+        { num: 'XTS0013', title: '供养 / Offering', meta: 'Mar 2020 · 为心而作',
+          zh: '永远合上钢琴的琴盖，不再打开。\n琴上供养娑婆三尊。',
+          en: 'Close the piano lid forever; never open it again.\nPlace an offering to the Three Deities of the Saha World upon the piano.' },
+
+        { num: 'XTS0014', title: '乐之冥想 / Meditation on Music', meta: 'May 2020',
+          zh: '于心中生一音\n持之\n缓慢出息 口出此音随之\n观此音消散 缓慢入息\n反复之\n住念于诸音之起止\n反复之\n观出息之时音成微粒而散\n于诸出入息 皆晰能辨\n反复之\n住念于诸音粒之消散\n于诸音粒 明明了了\n反复之\n观此音复归一体\n口止此音 而以心念持之\n静默',
+          en: 'Give rise to a single note within your heart\nHold it\nExhale slowly; let this note follow as it leaves your lips\nObserve this note dissipating; inhale slowly\nRepeat this\nKeep your mind focused on the arising and ceasing of all sounds\nRepeat this\nObserve how, as you exhale, the sound dissolves into particles and disperses\nBe clearly aware of every inhalation and exhalation\nRepeat this\nKeep your mind focused on the dissipation of all sound particles\nBe perfectly clear about all sound particles\nRepeat this\nObserve how this sound returns to oneness\nCease the sound with your mouth, yet hold it with your mind\nSilence' },
+
+        { num: 'XTS0015', title: '自画像 / Self Portrait', meta: 'Jun 2020 · 为社交而作',
+          zh: '录下自己的某个24小时里所有的声音。\n打开微信通讯录，在底部查看你的好友数量。\n把录音切成同样数量的份数，每份时长相等，并编号。\n把对应编号的录音发送给各位好友。\n让他们用一句语音消息来描述这段录音，\n以"我......"开头。\n按编号重组这些语音描述。\n\n注:其他社交媒体亦可。若无社交媒体，可依你的记忆列出所认识的所有人和他们的地址，并编号。用邮件寄出录音，让对方寄回写有描述的明信片。录下自己按编号朗读所有信片上内容的声音。',
+          en: 'Record all the sounds you hear over a 24-hour period.\nOpen your WeChat contacts and check the number of friends you have at the bottom of the screen.\nDivide the recording into an equal number of segments, each of equal duration, and number them.\nSend the recording segments with the corresponding numbers to each of your friends.\nAsk them to describe the recording in a single voice message, beginning with \'I...\'.\nRe-order the voice descriptions according to their numbers.\n\nNote: Other social media platforms may also be used. If you do not use social media, list everyone you know and their addresses from memory, and number them. Send the recordings by post and ask the recipients to return postcards with their descriptions written on them. Record yourself reading aloud the contents of all the postcards in numerical order.' },
+
+        { num: 'XTS0016', title: '', meta: '2021',
+          zh: '在睡前和醒来时听你的耳鸣。把它当做永恒的FREE MUSIC。聆听、分析、追逐它的变化，直到你的意识转移，再一次注意你的耳鸣，如此反复。',
+          en: 'Listen to your tinnitus before going to sleep and upon waking. Treat it as eternal FREE MUSIC. Listen to it, analyse it and follow its changes until your attention drifts; then bring your focus back to your tinnitus, and repeat this process.' },
+
+        { num: 'XTS0017', title: '', meta: '2021',
+          zh: '在任何地方，轻松自然地深呼吸。去听你的呼吸，并保持专注于它。如注意力被其他声音分散，请意识到那是什么声音并把意识转移回呼吸。如此一段时间后，保持以上专注的同时想想是谁在专注于呼吸声?再一段时间后，保持以上专注的同时想想是谁在这么想?',
+          en: 'Wherever you are, take deep breaths in a relaxed and natural manner. Listen to your breathing and remain focused on it. If your attention is distracted by other sounds, become aware of what those sounds are and redirect your awareness back to your breathing. After a while, whilst maintaining this focus, ask yourself: \'Who is focusing on the sound of my breathing?\' After a further while, whilst maintaining this focus, ask yourself: \'Who is thinking this?\'' },
+
+        { num: 'XTS0018', title: '', meta: '2021',
+          zh: '这个点要如何存在是个问题。我总是试图摆脱这些对物质的描述。比如这个 ●它的存在似乎没有理由，也不对任何事物表征，仅仅以一个黑色的圆周占据这纸面，与墙上某个点遥相呼应，拒绝与人世缠绵。画一条线把它们连起来，忘记那个人。',
+          en: 'How this point exists is a question. I always try to shake off these descriptions of matter. Take this, for example: ● Its existence seems to have no reason, nor does it represent anything; it merely occupies this sheet of paper as a black circle, echoing a point on the wall from afar, refusing to become entangled with the human world. Draw a line to connect them, and forget that person.' },
+
+        { num: 'XTS0019', title: '', meta: '2021',
+          zh: '计算自己从出生到现在一共活了[          ]天。用这数字来写一首歌来唱。要记得在明天忘记它。',
+          en: 'Work out [          ] days you have lived in total, from birth until now. Use this number to write a song and sing it. Remember to forget it by tomorrow.' },
+
+        { num: 'XTS0020', title: '', meta: '2021',
+          zh: '请对你今天看到的所有摄像头微笑',
+          en: 'Please smile at every CCTV camera you see today' },
+
+        { num: 'XTS0021', title: '', meta: '2021',
+          zh: '想办法参与一场美术馆讲座，并争取到向嘉宾提问的机会，注意是需要用麦克风的大场合。握紧你的麦克风，一脸严肃地提任何问题。在嘉宾回答你问题的时候，悄悄用食指敲击你的麦克风来应和他的语音，仿佛他说的每个字都带着冲击力!',
+          en: 'Find a way to attend a lecture at an art gallery and try to secure the chance to ask the guest a question---make sure it\'s a large event where a microphone is required. Grip your microphone tightly and ask any question with a serious expression. Whilst the guest is answering your question, quietly tap your microphone with your index finger in time with their speech, as if every word they utter carries great impact!' },
+
+        { num: 'XTS0022', title: '', meta: '2021',
+          zh: '请对一个你爱着而不可能在一起的人告白。',
+          en: 'Confess your love to someone you love but can never be with.' },
+
+        { num: 'XTS0023', title: '', meta: '2021',
+          zh: '找到今年所有的央视新闻联播视频，把它们加速，用半个小时全部看完。',
+          en: 'Find all the videos of this year\'s CCTV News Broadcast, speed them up, and watch them all in half an hour.' },
+
+        { num: 'XTS0024', title: '', meta: '2021',
+          zh: '面对一个生命或是没有生命的物体。注视一段时间。用更长的一段时间想象一下：A它在天堂的一季 B它在炼狱的又一季',
+          en: 'Face a living being or an inanimate object. Gaze at it for a while. Spend a longer period imagining: A. A season of it in heaven; B. Another season of it in purgatory.' },
+
+        { num: 'XTS0025', title: '', meta: '2021',
+          zh: '请在B站搜索"我真的很不错"。每天播一次，持续一周。',
+          en: 'Please search for \'I\'m Really Quite Good\' on Bilibili. Play it once a day for a week.' },
+
+        { num: 'XTS0026', title: '', meta: '2021',
+          zh: '在"音乐开始前" 与 "音乐开始后" 之间。',
+          en: 'Between \'before the music begins\' and \'after the music begins\'.' },
+
+        { num: 'XTS0027', title: '', meta: '2021',
+          zh: '为作一种脑海中永不间断的音乐，我曾定下规则：任何一个音的连续使用都不能超过两次。它们的音高、时值、力度都应在迂回与循环之中演化。而在今天的某个时刻，我将打破这一规则。',
+          en: 'To create a kind of music that plays ceaselessly in my mind, I once laid down a rule: no single note may be used consecutively more than twice. Their pitch, duration and dynamics should evolve through meandering and repetition. And at some point today, I shall break this rule.' },
+
+        { num: 'XTS0028', title: '', meta: '2021',
+          zh: '呼吸，直到你意识不到呼吸。有意识地呼吸，直到你意识不到呼吸。不去意识到呼吸，直到你意识到呼吸。呼吸，直到你意识不到呼吸。',
+          en: 'Breathe until you are no longer aware of your breathing. Breathe consciously until you are no longer aware of your breathing. Do not be aware of your breathing until you become aware of it. Breathe until you are no longer aware of your breathing.' },
+
+        { num: 'XTS0029', title: '', meta: '2021',
+          zh: '定义一下谎言，确保今后永远诚实。',
+          en: 'Define a lie, to ensure you remain honest forever after.' },
+
+        { num: 'XTS0030', title: '', meta: '2021',
+          zh: '捆住钢琴的延音踏板！',
+          en: 'Tie down the piano\'s sustain pedal!' },
+
+        { num: 'XTS0031', title: '', meta: '2021',
+          zh: '切下中央C，平均分成十二份。',
+          en: 'Cut out the middle C and divide it into twelve equal parts.' },
+
+        { num: 'XTS0032', title: '', meta: '2021',
+          zh: '提醒自己，别忘了还有52个白键。',
+          en: 'Remind yourself not to forget the 52 white keys.' },
+
+        { num: 'XTS0033', title: '', meta: '2021',
+          zh: '在地图上画一条线。',
+          en: 'Draw a line on a map.' },
+
+        { num: 'XTS0034', title: '', meta: '2021',
+          zh: '找一把吉他，让你的狗背对着站在吉他前，确保它的尾巴能接触到琴弦，用一根骨头逗弄它。',
+          en: 'Find a guitar, have your dog stand in front of it with its back turned, make sure its tail touches the strings, and tease it with a bone.' },
+
+        { num: 'XTS0035', title: '', meta: '2021',
+          zh: '携筚篥往动物园，为各动物演奏，一一告别，日暮而归。',
+          en: 'Take your bìlì to the zoo, play for each animal, bid them farewell one by one, and return at dusk.' },
+
+        { num: 'XTS0036', title: '', meta: '2021',
+          zh: '当以革命的意志斩草除根，对自己造一点点反，革个小小的命。',
+          en: 'With revolutionary resolve, uproot the problem at its source; rebel a little against yourself and stage a tiny revolution.' },
+
+        { num: 'XTS0037', title: '', meta: '2021',
+          zh: '从这儿撕开。',
+          en: 'Tear it open here.' },
+
+        { num: 'XTS0038', title: '', meta: '31st Mar 2022',
+          zh: '用今天的雨滴回忆过往所有的雨滴。',
+          en: 'Use today\'s raindrops to recall all the raindrops of the past.' },
+
+        { num: 'XTS0039', title: '', meta: '2nd Apr 2022',
+          zh: '请定义"安全距离"。试着和这世上所有人在今天保持"安全距离"。',
+          en: 'Please define \'safe distance\'. Try to maintain a \'safe distance\' from everyone in the world today.' },
+
+        { num: 'XTS0040', title: '', meta: '2022',
+          zh: '找到一只蜜蜂，请对它用最低的音歌唱。',
+          en: 'Find a bee and sing to it in the lowest possible pitch.' },
+
+        { num: 'XTS0041', title: '', meta: '5th Apr 2022',
+          zh: '你的体内有着一个只属于你一人的房间。进去，慢慢适应这个地方。虽然里面漆黑，也要忍住不向窗外的世界偷看，一不留神可是会魂游天际的。让自己时常意识到这个房间的存在，看看每天能待多久?',
+          en: 'There is a room inside you that belongs to you alone. Go inside and slowly acclimatise to this place. Although it is pitch black inside, resist the urge to peek out at the world beyond the window; a moment\'s inattention could send your soul drifting off into the heavens. Remind yourself of this room\'s existence from time to time, and see how long you can stay there each day.' },
+
+        { num: 'XTS0042', title: '', meta: '8th Apr 2022',
+          zh: '用你的琴弓使劲拉你团菜的泡沫箱发出凄厉的噪音。',
+          en: 'Use your bow to scrape vigorously against the polystyrene box containing your food, producing a piercing screech.' },
+
+        { num: 'XTS0042-v1', title: '泡沫盒四重奏 / Polystyrene Box Quartet', meta: 'Aug 2022 徐程 阿笛 王田 照骏园 首演于明室',
+          zh: 'pt1：四人一体的建筑\n四人一队，\n双手搭前人肩膀，开小火车状进入舞台。\n用不同语言依次说出标题：\n"泡沫盒四重奏"\n"Polystyrene Box Quartet"\n"Polystyreneschachtel Quartett"\n"発泡スチロール四重奏"\n四人并排，由最后一人向内抛掷传递泡沫盒。\n每人有一个泡沫盒，围成圈，顺时针相互抛掷，直至其中一人失手停止。\n四人共同将泡沫盒在舞台中央叠成塔，就座静默观赏。\n\npt2：彼此的呼吸、融合、节奏\n四人依次取下一个自己要用的泡沫盒，就坐准备。\n依次让弓弦在泡沫上弹跳。留出呼吸空隙让他人出声。\n从疏松到密集、音量渐强、分不清彼此。\n静默1分钟（如想抽烟可以抽一支）。\n\npt3：一点点成为线\n依次用尽可能最小的音量拉出一个单音。\n四人形成和音。\n音量从极微与中等间渐变。\n中间刻意留出各自独奏的时间，再次归复和音。\n30次拉弓后停止。\n\npt4：绝对的自由即是暴动\n没有任何限制。\n\npt5：说再见很容易\n用不同语言依次说出标题：\n"泡沫盒四重奏"\n"Polystyrene Box Quartet"\n"Polystyreneschachtel Quartett"\n"発泡スチロール四重奏"\n依次握手，用不同语言互相说：再见。\n四人将泡沫盒戴在头上，开着小火车离场。',
+          en: 'pt1: A Structure of Four as One\nThe four form a team,\nplacing their hands on the shoulders of the person in front, and enter the stage in a \'little train\' formation.\nThey state the title in turn, in different languages:\n"Polystyrene Box Quartet"\n"Polystyrene Box Quartet"\n"Polystyreneschachtel Quartett"\n"発泡スチロール四重奏"\nThe four stand side by side, with the person at the back tossing a polystyrene box inwards to pass it on.\nEach person holds a polystyrene box; they form a circle and toss the boxes to one another clockwise until one person drops theirs and the tosses cease.\nTogether, the four stack the polystyrene boxes into a tower in the centre of the stage, then take their seats and watch in silence.\n\npt2: Mutual Breathing, Fusion, Rhythm\nThe four take turns to select a polystyrene box to use, then sit down and prepare.\nIn turn, they make the strings of their bows bounce off the polystyrene.\nThey leave breathing spaces for others to make sound.\nFrom sparse to dense, the volume gradually increases until the sounds become indistinguishable from one another.\nSilence for 1 minute (if you wish to smoke, you may have a cigarette).\n\npt3: Becoming a Line, Bit by Bit\nIn turn, draw out a single note at the quietest possible volume.\nThe four form a chord.\nThe volume gradually shifts between barely audible and moderate.\nDeliberately set aside time for individual solos in between, then return to the chord.\nStop after 30 bow strokes.\n\npt4: Absolute Freedom Is Rebellion\nThere are no restrictions whatsoever.\n\npt5: Saying Goodbye Is Easy\nSay the title in turn in different languages:\n"泡沫盒四重奏"\n"Polystyrene Box Quartet"\n"Polystyreneschachtel Quartett"\n"発泡スチロール四重奏"\nShake hands in turn and say \'goodbye\' to one another in different languages.\nThe four musicians place the polystyrene boxes on their heads and exit the stage riding a hand train.' },
+
+        { num: 'XTS0043', title: '', meta: '8th Apr 2022',
+          zh: '在草丛里寻找散落的风铃。',
+          en: 'Searching for scattered wind chimes in the grass.' },
+
+        { num: 'XTS0044', title: '', meta: '12th Apr 2022',
+          zh: '策划一场大型的音乐表演，昭告天下，随后取消。',
+          en: 'Organising a large-scale music performance, announcing it to the world, then cancelling it.' },
+
+        { num: 'XTS0045', title: '', meta: '14th Apr 2022',
+          zh: '善待一切人。',
+          en: 'Treat everyone with kindness.' },
+
+        { num: 'XTS0046', title: '', meta: '15th Apr 2022',
+          zh: '用一小时认真看完15天的朋友圈，并忍住呕吐。',
+          en: 'Spend an hour carefully reading through 15 days\' worth of WeChat Moments, whilst resisting the urge to vomit.' },
+
+        { num: 'XTS0047', title: '', meta: '23rd Apr 2022',
+          zh: '在场所有人围圈抱团，用手臂感受左右的力量，随着力量弯腰，上下摆动，并用力咬紧牙关，让牙齿互相摩擦发出声音，但尽可能地压抑住不要发出嗓音，如此持续下去直到抱团散开。',
+          en: 'Everyone present forms a circle, linking arms to feel the strength on either side; they bend at the waist and sway up and down in time with that force, clenching their teeth tightly so they grind together, but suppressing any vocalisation as much as possible, continuing in this manner until the circle breaks up.' },
+
+        { num: 'XTS0048', title: '', meta: 'May 2022',
+          zh: '震落每一片树叶',
+          en: 'Shake off every single leaf' },
+
+        { num: 'XTS0049', title: '', meta: 'June 2022 · 首演于"明室" PARADE',
+          zh: '在社交平台游行。',
+          en: 'A parade on social media.' },
+
+        { num: 'XTS0050', title: '', meta: 'June 2022',
+          zh: '在附近的美术馆养一只想象出来的宠物，给它起一个艺术家的名字，记得要定时用想象出来的食物来喂它，要时常抚摸它，直到它死去的一天，在美术馆某个隐秘的地方为它悄悄建一座墓碑，素服举行葬礼，每年清明去一次美术馆祭拜。',
+          en: 'Keep an imaginary pet at a nearby art gallery; give it an artist\'s name; remember to feed it imaginary food at regular intervals; stroke it often; and when the day comes for it to die, quietly erect a gravestone for it in a secluded spot within the gallery, hold a funeral in plain clothes, and visit the gallery once a year on Qingming Festival to pay your respects.' },
+
+        { num: 'XTS0051', title: '为二重奏 / For a Duet', meta: 'June 2022 · 首演于"神兽之间" June 24, 2023 大提琴：王田 小号：陶轶',
+          zh: '二重奏自由定调。以下文字谱应在演奏时逐行显示给演奏者。\n\n看看你的对手，看她/他的眼睛，就这么注视一会儿，甚至忘记了你们还拿着乐器，乐器是某种提示，提示它将要发出声音，正如同你的性别，性别会影响别人对你的看法，在这些看法影响到你之前去看看这些观众，看他们的样子，他们的脸，他们的眼睛，他们身体的各种细节，他们的性别，也许有的不太好辨认性别，但让你的赤裸的目光影响他们，他们还在期待，期待你的乐器发出声音，你准备好演奏了吗？让你的意识回到乐器，把乐器当成一扇门，通过它去往别处，离开这里，钥匙在你的手中，注意力要集中，我们用半分钟的时间来酝酿第一个声音，让声音从你的乐器流出来，弥散到空气里，振动你和他们的耳膜，持续。学会声音的持续与思考并存，去感受你的声音与对手声音的关系，如果说你的声音是你的外化，那么你们声音的混合是对抗还是新生?试着改变声音的强度，你是否也会被声音改变，让它很弱，让它更弱，弱到似乎只有呼吸和意识中的这个音在延续，让这个音淡出你的意识，这可能需要一会儿，让你的心跳继续一会儿，当它彻底淡出后，再一次开始，由你自己决定音的音高、长度，再一次让它淡出，如此往复，每一个音都是一个新的你，他/她从门里走出来，如此往复，并感受你和对手各自音高、音量、起止的关系。\n\n在声音往复的同时思考，感觉彼此声音生出的节奏，节奏是你逃脱不掉的幻觉，在声音往复的同时用脚轻轻塌出那个节奏，慢慢增加音量，重复那个节奏感受你们的声音与脚踏出的节奏，在乐器之声弱化时也请保持那个节奏，不要被对手带走了你自己的节奏，停下乐器之声保持脚踏节奏，变换节奏的音量，停止脚下的节奏，转换为乐器的声音，试着去和对手演奏同一个音，持续，这两个音能更一致吗?持续那声音，用脚加入节奏，试着和对手保持同一个节奏，保持节奏，停下乐器的声音，让节奏变得微弱，意识扩展到周围，看看你的对手，听听你们的节奏，看看对手和之前有何区别，他/她一定被你们的音乐改变了，看看观众，在他们期待结束的时候停止，结束的时候总会失落吧，亦或如释重负。\n曲终',
+          en: 'The duet is in a key of your choice. The text score below should be displayed to the performers line by line during the performance.\n\nLook at your partner, look into their eyes, gaze at them for a moment, even forgetting that you are holding instruments; the instruments are a kind of cue, a reminder that sound is about to be produced, just as your gender, which influences how others perceive you. Before these perceptions affect you, look at the audience: observe their appearance, their faces, their eyes, the various details of their bodies, and their gender. Perhaps some are not easily identifiable, but let your unguarded gaze influence them. They are still waiting---waiting for your instrument to make a sound. Are you ready to play? Bring your awareness back to the instrument; treat it as a door through which to travel elsewhere, away from here. The key is in your hand; stay focused. Let\'s take half a minute to prepare for the first sound---let it flow from your instrument, diffuse into the air, and vibrate both your eardrums and theirs. Let it continue. Learn to sustain the sound whilst thinking; feel the relationship between your sound and that of your counterpart. If your sound is an externalisation of yourself, is the blending of your sounds a clash or a rebirth? Try altering the intensity of the sound; will you, too, be transformed by it? Make it very soft, then softer still---so soft that it seems only your breath and the sound in your consciousness remain. Let this sound fade from your awareness; this may take a moment. Let your heartbeat continue for a while. Once it has faded completely, begin again. You decide the pitch and duration of the sound, then let it fade once more. Repeat this process, Each sound is a new you; he or she steps out through the door. Repeat this process, and feel the relationship between your own and your opponent\'s pitch, volume, and the timing of their onset and cessation. As the sounds ebb and flow, reflect on and feel the rhythm born of your voices; rhythm is an illusion from which you cannot escape. Whilst the sounds ebb and flow, gently tap out that rhythm with your feet. Slowly increase the volume, repeating that rhythm to feel the interplay between your voices and the rhythm your feet create. Please maintain that rhythm even as the sound of the instrument fades, do not let your partner carry you away from your own rhythm. Stop playing the instrument whilst maintaining the rhythm with your feet; vary the volume of the rhythm; stop the rhythm with your feet and switch back to the sound of the instrument; try to play the same note as your partner, sustaining it---can these two notes become more in unison? Sustain that sound, add a rhythm with your feet, and try to maintain the same rhythm as your partner. Keep the rhythm going, then stop the sound of the instrument and let the rhythm fade. Expand your awareness to your surroundings; look at your partner, listen to your shared rhythm, and observe how they have changed from before. They must surely have been transformed by your music. Look at the audience; stop just as they are expecting the piece to end. There is always a sense of loss when it ends, or perhaps a sense of relief.\n\nThe piece ends.' },
+
+        { num: 'XTS0052', title: 'Let me take you down coz I\'m going to...', meta: 'Apr 2023 · 为一位表演者或乐团而作 · 首演于"神兽之间" June 24, 2023',
+          zh: '这组曲类似一个发了疯的点唱机。首先制定想要演奏的段落数（也可用骰子或程序的不重复随机数）。如24，便用骰子或程序在0-101的范围里随机抽取24次，依次得到24个数字编号组成的曲序。（可预先确定是否容许抽到重复的数字）由发起者或乐团共同排练这个数列对应编码的文字谱，然后表演。（可用随机数来为决定每一曲的时长和力度，但不必须。）对文字谱的解读是彻底开放的，玩得开心！\n\n0 Let me t...\n1 竭力微笑\n2 just leave me alone...\n3 Tango ending\n4 打脸\n5 Bach\n6 弄乱头发\n7 Death Metal\n8 Kenny G\n9 Torturing Noise\n10 Shhhhh...\n11 C~A~G~E\n12\n13 13\n14 深情拥抱\n15 看高处\n16 某人离场\n17 励志名言\n18 心灵鸡汤\n19 19Hz\n20 堵住耳朵\n21 #F\n22 全家\n23 英特纳雄耐尔\n24 一个是阆苑仙葩\n25 Feedback\n26 Death\n27 咳嗽\n28 Michael Jackson in whistle\n29 吼\n30 303\n31 play anything\n32 😭\n33 追与逃\n34 in darkness... Let me dwell...\n35 盲\n36 滴\n37 滑音\n38 1...2...1234\n39 MetalHead\n40 STOP\n41 Nothing\n42 Love is...\n43 Yesterday... Troub...\n44 Hel...\n45 南无阿弥陀佛\n46 Your partner is an ass hole\n47 喝\n48 诗\n49 湿\n50 破\n51 听\n52 KISS\n53 吃\n54 再一次\n55 睡\n56 收款码\n57 baby you are a rich man\n58 革命不是请客吃饭\n59 情歌\n60 a sound\n61 anything\n62 too young\n63 响\n65 拆\n66 怨\n67 Art is over\n68 Music is over\n69 等\n70 Guitar\n71 Peace\n72 Fat\n73 M\n74 停止呼吸\n75 Loop\n76 Picachiu\n77 不需放屁 试看...\n78 全体倒地\n79 79Hz\n80 打屁股\n81 Blue train\n82 Counterpoint\n83 BWV 1004\n84 扎起头发\n85 Petting your instrument\n86 Talk to your instrument about ART\n87 Political\n88 Anarchy\n89 Free Jazz is dead\n90 Rock is dead\n91 Punk\'s not dead\n92 Flashes & Sunglasses\n93 Sit\n94 RIP\n95 Solo\n96 Listen to the audience\n97 Stop him\n98 Jazz\n99 Let it B...\n100 扔了乐器\n101 鼓掌',
+          en: 'This suite is like a jukebox gone mad. First, decide on the number of sections you wish to perform (you may also use dice or a programme\'s non-repeating random number generator). For example, if you choose 24, use dice or a programme to generate 24 random numbers between 0 and 101, resulting in a sequence of 24 numbered codes. (You may decide in advance whether duplicate numbers are permitted.) The organiser or ensemble should rehearse the text-based score corresponding to this sequence, and then perform it. (Random numbers may be used to determine the duration and dynamics of each piece, but this is not mandatory.) The interpretation of the text-based score is entirely open---have fun!\n\n0 Let me t...\n1 Force a smile\n2 Just leave me alone...\n3 Tango ending\n4 Slap in the face\n5 Bach\n6 Mess up my hair\n7 Death Metal\n8 Kenny G\n9 Torturing Noise\n10 Shhhhh...\n11 C~A~G~E\n12\n13 13\n14 A tender embrace\n15 Looking up\n16 Someone leaves\n17 Inspirational quotes\n18 Feel-good advice\n19 19Hz\n20 Covering one\'s ears\n21 #F\n22 The whole family\n23 L\'Internationale\n24 One is a celestial flower from the Garden of Langyuan\n25 Feedback\n26 Death\n27 Cough\n28 Michael Jackson whistling\n29 Roar\n30 303\n31 Play anything\n32 😭\n33 Chase and Escape\n34 In darkness... Let me dwell...\n35 Blind\n36 Drip\n37 Glissando\n38 1...2...1234\n39 MetalHead\n40 STOP\n41 Nothing\n42 Love is...\n43 Yesterday... Troub...\n44 Hel...\n45 Namo Amitabha Buddha\n46 Your partner is an arsehole\n47 Drink\n48 Poetry\n49 Wet\n50 Broken\n51 Listen\n52 KISS\n53 Eat\n54 Once more\n55 Sleep\n56 Payment QR code\n57 Baby, you\'re a rich man\n58 Revolution isn\'t a dinner party\n59 Love song\n60 A sound\n61 Anything\n62 Too young\n63 Ring\n65 Dismantle\n66 Resentment\n67 Art is over\n68 Music is over\n69 Wait\n70 Guitar\n71 Peace\n72 Fat\n73 M\n74 Hold your breath\n75 Loop\n76 Pikachu\n77 No need to fart -- have a go...\n78 Everyone hit the floor\n79 79Hz\n80 Spanking\n81 Blue train\n82 Counterpoint\n83 BWV 1004\n84 Tie your hair back\n85 Petting your instrument\n86 Talk to your instrument about ART\n87 Political\n88 Anarchy\n89 Free Jazz is dead\n90 Rock is dead\n91 Punk\'s not dead\n92 Flashes & Sunglasses\n93 Sit\n94 RIP\n95 Solo\n96 Listen to the audience\n97 Stop\n98 Jazz\n99 Let it B...\n100 Throw away your instrument\n101 Applause' },
+
+        { num: 'XTS0053', title: '植物音乐 / Plant Music', meta: 'Apr 2023',
+          zh: '带一盆你的植物上台，把它放在你的旁边，讲一个关于你与植物交谈的故事。',
+          en: 'Bring a pot of your plant onto the stage, place it beside you, and tell a story about how you talk to your plant.' },
+
+        { num: 'XTS0054', title: '表演 / Performance', meta: 'Apr 2023',
+          zh: '不知如何表演',
+          en: 'Not Knowing How to Perform' },
+
+        { num: 'XTS0055', title: '表演 / Performance', meta: '1 June 2023 · 首演于"明室" 徐程 22nd June 2023',
+          zh: '演戏。演哈姆雷特。',
+          en: 'Playing. Playing Hamlet.' },
+
+        { num: 'XTS0056', title: '舌头音乐 / Tongue Music', meta: 'July 2023 · 二重奏：两台音箱、两位表演者。',
+          zh: '请打开吉他音箱，\n所有参数调至最大，\n将吉他线的一端接入音箱，\n舔另一端。',
+          en: 'Please switch on the guitar amplifier,\nset all controls to maximum,\nplug one end of the guitar cable into the amplifier,\nand lick the other end.' },
+
+        { num: 'XTS0057', title: '为猫 / For Cats', meta: 'July 2023',
+          zh: '请试着让猫睡着。',
+          en: 'Please try to get the cat to sleep.' },
+
+        { num: 'XTS0058', title: '为社会 / For Social', meta: 'Aug 2023',
+          zh: '序曲\n请在公众场合不谈论任何事\n第一曲\n请在公众场合谈论富强\n第二曲\n请在公众场合谈论民主\n第三曲\n请在公众场合谈论文明\n第四曲\n请在公众场合谈论和谐\n第五曲\n请在公众场合谈论自由\n第六曲\n请在公众场合谈论平等\n第七曲\n请在公众场合谈论公正\n第八曲\n请在公众场合谈论法治\n第九曲\n请在公众场合谈论爱国\n第十曲\n请在公众场合谈论敬业\n第十一曲\n请在公众场合谈论诚信\n第十二曲\n请在公众场合谈论友善',
+          en: 'Overture\nPlease do not discuss anything in public\nFirst Movement\nPlease discuss prosperity and strength in public\nSecond Movement\nPlease discuss democracy in public\nThird Movement\nPlease discuss civilisation in public\nFourth Movement\nPlease discuss harmony in public\nFifth Movement\nPlease discuss freedom in public\nSixth Movement\nPlease discuss equality in public\nSeventh Movement\nPlease discuss justice in public\nEighth Movement\nPlease discuss the rule of law in public\nNinth Movement\nPlease discuss patriotism in public\nTenth Movement\nPlease discuss dedication to one\'s work in public\nMovement 11\nPlease discuss integrity in public\nMovement 12\nPlease discuss kindness in public' },
+
+        { num: 'XTS0059', title: '吃乐 / Food Music', meta: 'Sep 2023 · 首演于Trigger 2023年10月21日by 余隐湯',
+          zh: '请在乐器上吃寿司。',
+          en: 'Please eat sushi on the musical instruments.' },
+
+        { num: 'XTS0060', title: '想象的音乐 / Imagined Music', meta: 'Oct 2023',
+          zh: '请想象自己是John Cage。',
+          en: 'Please imagine you are John Cage.' }
+    ];
+
+    // ==================== 渲染逻辑 ====================
+    function getContentDiv() { return document.getElementById('dynamicContent'); }
+    function getWelcomeDiv() { return document.getElementById('welcomeMessage'); }
+
+    function buildCatalog() {
+        var ul = document.getElementById('tsList');
+        if (!ul) return;
+        var html = '';
+        for (var i = 0; i < scores.length; i++) {
+            var s = scores[i];
+            var label = s.num + (s.title ? ' · ' + s.title : '');
+            html += '<li><div class="catalog-item-wrapper">' +
+                    '<a class="catalog-link" data-ts="' + s.num + '">' + label + '</a>' +
+                    '</div></li>';
+        }
+        ul.innerHTML = html;
+
+        var links = ul.querySelectorAll('.catalog-link');
+        for (var j = 0; j < links.length; j++) {
+            links[j].addEventListener('click', function(e) {
+                e.preventDefault();
+                var num = this.getAttribute('data-ts');
+                renderTS(num);
+                if (window.innerWidth <= 800) {
+                    var sb = document.getElementById('catalogSidebar');
+                    if (sb) sb.classList.remove('open');
+                }
+            });
+        }
+    }
+
+    function renderTS(num) {
+        var s = null;
+        for (var i = 0; i < scores.length; i++) {
+            if (scores[i].num === num) { s = scores[i]; break; }
+        }
+        if (!s) { console.warn('未找到:', num); return; }
+
+        var welcomeDiv = getWelcomeDiv();
+        var contentDiv = getContentDiv();
+        if (!contentDiv) return;
+        if (welcomeDiv) welcomeDiv.style.display = 'none';
+
+        var out = '<div class="ts-item">';
+        out += '<div class="ts-number">' + s.num + '</div>';
+        if (s.title) out += '<div class="ts-title">' + s.title + '</div>';
+        if (s.meta) out += '<div class="ts-meta">' + s.meta + '</div>';
+        out += '<p>' + (s.zh || '') + '</p>';
+        if (s.en) {
+            out += '<div class="centered-symbol">☾</div>';
+            out += '<div class="en-text"><p>' + s.en + '</p></div>';
+        }
+        out += '</div>';
+        contentDiv.innerHTML = out;
+
+        var area = document.querySelector('.content-area');
+        if (area) area.scrollTop = 0;
+
+        var allLinks = document.querySelectorAll('.catalog-link');
+        for (var k = 0; k < allLinks.length; k++) allLinks[k].classList.remove('active');
+        var cur = document.querySelector('.catalog-link[data-ts="' + num + '"]');
+        if (cur) cur.classList.add('active');
+    }
+
+    function resetToWelcome() {
+        var welcomeDiv = getWelcomeDiv();
+        var contentDiv = getContentDiv();
+        if (welcomeDiv) welcomeDiv.style.display = 'block';
+        if (contentDiv) contentDiv.innerHTML = '';
+        var allLinks = document.querySelectorAll('.catalog-link');
+        for (var i = 0; i < allLinks.length; i++) allLinks[i].classList.remove('active');
+    }
+
+    // 手机菜单
+    (function() {
+        var btn = document.getElementById('mobileMenuBtn');
+        var sb = document.getElementById('catalogSidebar');
+        if (btn && sb) {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                sb.classList.toggle('open');
+                var isOpen = sb.classList.contains('open');
+                btn.querySelector('span:first-child').textContent = isOpen ? '◀️' : '▶️';
+            });
+        }
+    })();
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', function() {
+        buildCatalog();
+        resetToWelcome();
+        console.log('文字谱页面初始化完成，共', scores.length, '条');
+    });
+</script>
+</body>
+</html>
