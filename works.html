@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <link rel="icon" type="image/png" href="./img/icon.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>徐程 · 作品 | 声音档案</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; width: 100%; background-color: #000000; }
+        body {
+            background-color: #000000;
+            font-family: system-ui, -apple-system, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Noto Sans', sans-serif;
+            color: #8e9eaf;
+            overflow: hidden;
+            position: relative;
+            height: 100vh;
+        }
+        ::-webkit-scrollbar { width: 6px; background-color: #0a0e12; }
+        ::-webkit-scrollbar-thumb { background-color: #2c3e4e; border-radius: 8px; }
+
+        /* ========== 左侧固定图片：起始顶部充满，缓慢向下移 ========== */
+        .left-fixed-img {
+            position: fixed; left: 0; top: 0; width: 174px; height: 100vh;
+            background-color: #000; overflow: hidden; z-index: 10;
+        }
+        .slow-rise-img {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: auto;
+            display: block;
+            animation: slideDown 1500s linear infinite;
+        }
+        @keyframes slideDown {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100%); }
+        }
+
+        /* 中间分类栏 */
+        .catalog-sidebar {
+            position: fixed; left: 174px; top: 0; width: 340px;
+            background-color: #050505; height: 100vh; overflow-y: auto;
+            padding: 2rem 1.2rem 2rem 1.5rem;
+            border-right: 1px solid rgba(140, 170, 190, 0.15);
+            z-index: 10; transition: transform 0.3s ease;
+        }
+        .catalog-sidebar::-webkit-scrollbar { width: 3px; }
+        .catalog-title { font-size: 1.2rem; font-weight: 600; color: #a2bbdf; margin-bottom: 0.5rem; }
+        .catalog-name {
+            font-size: 1rem; font-weight: 500; color: #cbdae9;
+            margin: 1.2rem 0 0.5rem 0; padding-bottom: 0.25rem;
+            border-bottom: 1px solid rgba(140, 170, 190, 0.3);
+        }
+        .catalog-list { list-style: none; margin: 0; padding-left: 0.5rem; }
+        .catalog-list li { margin-bottom: 0.5rem; }
+        .catalog-item-wrapper { display: block; cursor: pointer; }
+        .catalog-link {
+            font-size: 0.78rem; color: #8da1bd; text-decoration: none;
+            transition: color 0.2s; display: inline-block; line-height: 1.5;
+        }
+        .catalog-link-italic {
+            font-size: 0.7rem; font-style: italic; color: #6a7c8f;
+            display: block; margin-top: 0.1rem; padding-left: 0.5rem;
+        }
+        .catalog-item-wrapper:hover .catalog-link { color: #c0d0e8; }
+        .catalog-link.active { color: #e0eef8; font-weight: 500; }
+
+        /* 标签云 */
+        .tag-cloud {
+            margin-top: 1.5rem; padding-top: 1rem;
+            border-top: 1px solid rgba(140, 170, 190, 0.2);
+        }
+        .tag-cloud-title {
+            font-size: 0.85rem; font-weight: 600; color: #a2bbdf;
+            margin-bottom: 0.6rem; letter-spacing: 0.5px;
+        }
+        .tag-list { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+        .tag-item {
+            font-size: 0.68rem; color: #8da1bd;
+            background: rgba(30, 40, 50, 0.6);
+            padding: 0.2rem 0.5rem; border-radius: 12px;
+            cursor: pointer; transition: all 0.2s;
+            border: 1px solid rgba(140, 170, 190, 0.15);
+            white-space: nowrap;
+        }
+        .tag-item:hover { background: #2c3e4e; color: #c0d0e8; }
+        .tag-item.active { background: #3a4d5e; color: #e0eef8; border-color: #8da1bd; }
+
+        /* 右侧内容栏 */
+        .content-area {
+            position: absolute; left: 514px; right: 0; top: 0; bottom: 0;
+            overflow-y: auto; padding: 2rem 2.5rem 100px 2.5rem;
+            background-color: #000000;
+        }
+
+        .welcome-text { max-width: 900px; margin-top: 2rem; }
+        .welcome-text p {
+            font-size: 1rem; line-height: 1.9; margin-bottom: 1rem;
+            color: #b0c0d4;
+        }
+        /* 欢迎区下方图片：缩小到原图 1/2 */
+        .welcome-img {
+            display: block;
+            margin: 2rem auto 0 auto;
+            max-width: 50%;
+            width: auto;
+            border: none;
+            box-shadow: none;
+            background: transparent;
+        }
+
+        /* 作品条目 */
+        .work-item {
+            max-width: 1100px; margin-bottom: 4rem;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .work-title {
+            font-size: 1.4rem; font-weight: 600; color: #c2d4f0;
+            margin-bottom: 0.3rem;
+        }
+        .work-subtitle {
+            font-size: 0.9rem; color: #8da1bd; margin-bottom: 1rem;
+            font-style: italic;
+        }
+        .work-item p {
+            font-size: 0.95rem; line-height: 1.9; margin-bottom: 1rem;
+            color: #b8c7dd;
+        }
+        .work-item .en-text { color: #a5b6ce; }
+
+        .centered-symbol { text-align: center; margin: 2rem 0; color: #8da1bd; }
+
+        /* 图片 */
+        .work-images {
+            display: flex; flex-direction: column; align-items: center;
+            gap: 1.5rem; margin: 1.5rem 0;
+        }
+        .work-images img {
+            max-width: 100%; width: auto; height: auto;
+            border-radius: 6px; border: 1px solid #2a3a44;
+            background: #0a0e12; object-fit: contain;
+        }
+        .work-hero {
+            max-width: 100%; max-height: 400px; margin-bottom: 1.5rem;
+            border-radius: 6px; border: 1px solid #2a3a44;
+        }
+
+        /* 视频嵌入 (与 projects 页完全一致) */
+        .link-list {
+            margin: 1rem 0;
+        }
+        .link-list iframe {
+            max-width: 100%;
+            border-radius: 8px;
+            margin: 0.5rem 0;
+        }
+
+        /* 链接 */
+        .link-btn {
+            display: inline-block; margin: 0.25rem 0.8rem 0.25rem 0;
+            padding: 0.2rem 0.6rem; background: rgba(30, 40, 50, 0.6);
+            border-radius: 20px; font-size: 0.85rem;
+            color: #b89eff; text-decoration: none; transition: 0.2s;
+        }
+        .link-btn:hover { background: #2c3e4e; color: #d4b4ff; }
+
+        /* 标签显示 */
+        .work-tags {
+            margin-top: 1rem; font-size: 0.8rem; color: #7a8fa5;
+        }
+        .work-tags span {
+            display: inline-block; margin-right: 0.8rem;
+            padding: 0.15rem 0.5rem;
+            background: rgba(30, 40, 50, 0.5); border-radius: 12px;
+        }
+
+        strong, b { color: #c2d4f0; }
+
+        /* 底部固定栏 */
+        .bottom-fixed-bar {
+            position: fixed; bottom: 0; left: 514px; right: 0;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px);
+            border-top: 1px solid rgba(140, 170, 190, 0.25);
+            padding: 0.6rem 1rem; z-index: 100;
+            display: flex; flex-wrap: wrap; justify-content: flex-start;
+            align-items: center; gap: 1.2rem; font-size: 0.85rem;
+        }
+        .bottom-fixed-bar a {
+            color: #8da1bd; text-decoration: none; transition: color 0.2s;
+            font-weight: 300; font-style: italic; white-space: nowrap;
+        }
+        .bottom-fixed-bar a:hover { color: #c0d0e8; }
+        .sep-space { margin-left: 4rem; }
+
+        /* 手机悬浮目录按钮 */
+        .mobile-menu-btn {
+            display: none; position: fixed; top: 1rem; left: 1rem;
+            z-index: 200; background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(140, 170, 190, 0.3);
+            border-radius: 30px; padding: 0.4rem 0.8rem;
+            cursor: pointer; align-items: center; gap: 6px;
+        }
+        .mobile-menu-btn span:first-child { font-size: 1rem; color: #cbdae9; }
+        .mobile-menu-btn span:last-child { font-size: 0.9rem; color: #cbdae9; }
+
+        /* 手机竖屏 */
+        @media (max-width: 800px) {
+            .left-fixed-img { display: none; }
+            .catalog-sidebar {
+                transform: translateX(-100%); width: 280px; left: 0;
+                z-index: 150; padding-top: 5rem;
+            }
+            .catalog-sidebar.open { transform: translateX(0); }
+            .mobile-menu-btn { display: flex; }
+            .content-area {
+                position: relative; left: 0;
+                padding: 4rem 1rem 120px 1rem; width: 100%;
+                overflow-y: auto !important; height: 100vh;
+            }
+            .bottom-fixed-bar {
+                left: 0; padding: 0.5rem; gap: 0.5rem;
+                font-size: 0.75rem; justify-content: center; flex-wrap: wrap;
+            }
+            .bottom-fixed-bar a:nth-child(4) {
+                flex-basis: 100%; text-align: center; margin-bottom: 0.2rem;
+            }
+            .sep-space { display: none; }
+            .work-images img { max-width: 100%; }
+            .welcome-img { max-width: 80%; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- 左侧固定底图：起始顶部充满，缓慢向下 -->
+<div class="left-fixed-img">
+    <img class="slow-rise-img" src="./img/workimg/lbg.gif" alt="左侧装饰" loading="lazy" onerror="this.style.opacity='0.3'">
+</div>
+
+<!-- 中间分类栏 -->
+<div class="catalog-sidebar" id="catalogSidebar">
+    <div class="catalog-title">作品 Works</div>
+
+    <div class="catalog-name">已出版个人唱片</div>
+    <ul class="catalog-list" id="cat-records"></ul>
+
+    <div class="catalog-name">装置与硬件</div>
+    <ul class="catalog-list" id="cat-installations"></ul>
+
+    <div class="catalog-name">现场与表演</div>
+    <ul class="catalog-list" id="cat-performances"></ul>
+
+    <div class="catalog-name">文字谱</div>
+    <ul class="catalog-list" id="cat-textscores">
+        <li><div class="catalog-item-wrapper"><a class="catalog-link" href="./textscores.html">文字谱合集 / Text Scores (130)</a></div></li>
+    </ul>
+
+    <!-- 标签云 -->
+    <div class="tag-cloud">
+        <div class="tag-cloud-title">标签筛选</div>
+        <div class="tag-list" id="tagList"></div>
+    </div>
+
+    <div style="height: 2rem;"></div>
+    <div style="height: 2rem;"></div>
+</div>
+
+<div class="mobile-menu-btn" id="mobileMenuBtn">
+    <span>▶️</span>
+    <span>Works</span>
+</div>
+
+<!-- 右侧内容区 -->
+<div class="content-area" id="contentArea">
+    <div id="welcomeMessage" class="welcome-text">
+        <p>徐程的作品涵盖已出版个人唱片、声音装置、现场表演与文字谱等多个方向。以下是其主要作品的整理。</p>
+        <p>Xu Cheng's works span released solo recordings, sound installations, live performances and text scores. The following is a survey of his major works.</p>
+        <img class="welcome-img" src="./img/workimg/xcmr.gif" alt="装饰" loading="lazy">
+    </div>
+    <div id="dynamicContent"></div>
+</div>
+
+<!-- 底部固定栏 -->
+<div class="bottom-fixed-bar">
+    <a href="./bio.html">传记 / Biography</a>
+    <a href="./projects.html">项目 / Projects</a>
+    <a href="./gallery.html">相册 / Photo Gallery</a>
+    <a href="./writings.html">写作 / Writings</a>
+    <span class="sep-space"></span>
+    <a href="mailto:xuchengnotes@sina.com">e-mail</a>
+    <a href="https://www.instagram.com/xcfoto/" target="_blank">Ins</a>
+    <a href="https://space.bilibili.com/30430328" target="_blank">BiliBili</a>
+    <a href="https://mp.weixin.qq.com/s?__biz=Mzg2MTU0MTQ2OA==&mid=2247485320&idx=1&sn=25ae395578b77e57841d71b6292d89fa" target="_blank">WechatPP</a>
+    <a href="https://github.com/dustymirror" target="_blank">Github</a>
+</div>
+
+<script>
+    // ========== 作品数据 ==========
+    const worksData = {
+        // ---------- 已出版个人唱片 ----------
+        '070527': {
+            cat: 'records',
+            title: '070527',
+            subtitle: 'Little Sound Records — 2008',
+            tags: ['Music-Concrete', 'Computer Music', 'Field Recording'],
+            heroImg: './img/workimg/070527.jpg',
+            chinese: `<p>徐程早期有大量以日期标注的各种无标题实验声音作品，这就是其中之一。</p>
+<p><strong>070527</strong>是徐程对自己日常生活中实地录音的重组与处理，由中国声音艺术早期相当重要的厂牌<strong>小声唱片</strong>出版。</p>`,
+            english: `<p>Xu Cheng produced a large number of untitled experimental sound works in his early career, each labelled with a date; this is one of them.</p>
+<p>070527 is Xu Cheng's reorganisation and processing of field recordings from his daily life, released by <strong>Little Sound Records</strong>, a label of considerable importance in the early days of Chinese sound art.</p>`,
+            links: ``
+        },
+        '070919': {
+            cat: 'records',
+            title: '070919',
+            subtitle: 'BrainWave Communication — BCD006 — 2007',
+            tags: ['Music-Concrete', 'Computer Music', 'Field Recording'],
+            heroImg: './img/workimg/070919.jpg',
+            chinese: `<p>由已故声音艺术家洪启乐策划的闹波交流3寸cdr系列出版。</p>
+<p>徐程个人早期作品。某个凌晨，徐程在一家通宵快餐店就餐，邻座一个男子开始用细碎的词语自言自语，反复在雷同的字句间跳跃。徐程开始对这种句法结构着迷，于是他开始用软件模拟一种可控的随机跳跃。从段落到句子到词语到音节，一步步把句意打破，碾碎为颗粒。</p>
+<p><strong>070919</strong>就是这样一种实验，声音素材则来自网络聊天室的田野录音。</p>
+<p>后来这个系统则被用到了他的作品<strong>Scape-sequencer</strong>里面。</p>`,
+            english: `<p>Publication of the <strong>BrainWave Communication</strong> 3-inch CD-R series, curated by the late sound artist Hong Qile.</p>
+<p>An early solo work by Xu Cheng. One midnight, whilst dining at an all-night fast-food restaurant, Xu Cheng noticed a man seated next to him muttering to himself in fragmented words, repeatedly jumping between similar phrases. Xu Cheng became fascinated by this syntactic structure, so he began using software to simulate a controlled, random jump. Step by step, he broke down the meaning of the text—from paragraphs to sentences to words to syllables—crushing it into particles.</p>
+<p><strong>070919</strong> is an experiment of this kind, with the sound material sourced from a field recording made in online chat rooms.</p>
+<p>This system was later incorporated into his work <strong>Scape-sequencer</strong>.</p>`,
+            links: ``
+        },
+        'wfc': {
+            cat: 'records',
+            title: '野狐吟 / Wild Fox Chants',
+            subtitle: 'Post Concrete — AV014 — 2009',
+            tags: ['Free-Improvise', 'Noise', 'Guitar', 'Prepared Guitar'],
+            heroImg: './img/workimg/wfc.jpg',
+            chinese: `<p>徐程早年在一次避雨的过程中，偶然得到了一把疑似为早于50年代中国制造的木吉他。吉他开裂，弦钮锈蚀，几乎无法发出正常的音准，却有着相当有趣的共鸣。这把琴搁置了很久。</p>
+<p>2008年时，徐程正在实验各种预置电吉他技术。于是，他给这把木吉装上了弹簧来代替以部分琴弦，并试着把琴弦调到极其松的状态。在这样的调整之下，这把吉他几乎可以做出类似西塔琴的推弦音程，点弦时则带着凄厉的残响。徐程被这些音色的特异与细节吸引，并独自一人在夜间积累着即兴演奏的录音。在这个过程中，徐程似乎总能感觉到某个哀怨的魂浮绕在琴音之中，这把吉他总在显现着某种并不属于他自己的性格，亦或是某个不知道的自己正在生成。</p>
+<p>最终这些录音在次年由姚大钧主持的<strong>Post Concrete</strong>线上系列<strong>Archival Vinyl</strong>制作发行。这把吉他也再次被搁置许久直到多年后<strong>《无词诗》</strong>的开始。</p>`,
+            english: `<p>In his early years, whilst taking shelter from the rain, Xu Cheng chanced upon an acoustic guitar that appeared to have been made in China before the 1950s. The guitar's surface was cracked, its tuning pegs rusted, and it was almost impossible to tune it properly, yet it possessed a rather intriguing resonance. The instrument lay unused for a long time.</p>
+<p>In 2008, Xu Cheng was experimenting with various prepared electric guitar techniques. He fitted the acoustic guitar with long springs to replace some of the strings and tried tuning them to an extremely loose state. Following these adjustments, the guitar was able to produce glissando intervals reminiscent of a sitar, whilst plucked notes carried a piercing resonance. Captivated by the uniqueness and nuance of these timbres, Xu Cheng spent his nights recording his improvisations in solitude.</p>
+<p>Throughout this process, he seemed to sense a melancholic spirit wandering through the guitar's tones; the instrument constantly revealed a character that was not his own, or perhaps an unknown 'self' was taking shape.</p>
+<p>Ultimately, these recordings were produced and released the following year by <strong>Archival Vinyl</strong>, an online series curated by Yao Dajun under the <strong>Post Concrete</strong> label. The guitar was then set aside for a long time, until work on <strong>Poems Without Words</strong> began many years later.</p>`,
+            links: ``
+        },
+        'pluto': {
+            cat: 'records',
+            title: 'Pluto',
+            subtitle: 'playrec — prm02 — 2017',
+            tags: ['Synthesizer', 'Ambient', 'Computer Music'],
+            heroImg: './img/workimg/pluto.avif',
+            chinese: `<p><strong>Pluto</strong>是徐程的首张合成器专辑，录制于2013至2017年间。</p>
+<p>专辑基调来自于荣格<strong>《红书》</strong>中的一段：</p>
+<p><em>If you look for a light, you fall first into an even deeper darkness. In this darkness you find a light with a weak reddish flame that gives only a low brightness, but it is enough for you to see your neighbor.</em></p>
+<p>C. G. Jung — <strong>LIBER NOVUS</strong></p>`,
+            english: `<p><strong>Pluto</strong>'s tone is inspired by a passage from Jung's <strong>LIBER NOVUS</strong>.</p>
+<p>It is Xu Cheng's debut synthesiser album, recorded between 2013 and 2017.</p>`,
+            links: `<a class="link-btn" href="https://playreclabel.bandcamp.com/album/pluto" target="_blank">play rec bandcamp</a>`
+        },
+        'winterreise': {
+            cat: 'records',
+            title: 'Winterreise',
+            subtitle: 'playrec — prm10 — 2018',
+            tags: ['Computer Music', 'Deconstruction'],
+            heroImg: './img/workimg/winterreise.avif',
+            chinese: `<p><strong>Winterreise</strong>是徐程2015年的作品。徐程在这个作品里大量运用技术解构，对一首90年代流行歌曲进行处理并重新推演出结构与和声。该作品在2015至2018年曾多次进行不同版本的现场表演，并由<strong>playrec</strong>在2018年发行。</p>`,
+            english: `<p><strong>Winterreise</strong> is a work by Xu Cheng from 2015. In this piece, Xu Cheng makes extensive use of technical deconstruction to rework a 1990s pop song, re-examining its structure and harmony. The work was performed live in various versions on numerous occasions between 2015 and 2018, and was released by <strong>playrec</strong> in 2018.</p>`,
+            links: `<a class="link-btn" href="https://playreclabel.bandcamp.com/album/winterreise" target="_blank">play rec bandcamp</a>`
+        },
+        'inred': {
+            cat: 'records',
+            title: 'IN RED',
+            subtitle: 'playrec — prm11 — 2018',
+            tags: ['Music-Concrete', 'Computer Music', 'Field Recording'],
+            heroImg: './img/workimg/inred.avif',
+            extraImgs: ['./img/workimg/rec.jpg'],
+            chinese: `<p><strong>IN RED</strong>共包含了三个和火焰有关的作品。</p>
+<p><strong>HHUM</strong>于2013年完成，徐程将其当作一种声音的净化仪式。该作品曾在2012至2020年间在各地进行过表演，其中也包含了后期的四声道与现场人声版本。</p>
+<p><strong>HHUM</strong>包含了徐程对<strong>TMISM</strong>于2012年现场演出音频重新采样与改编。</p>
+<p><strong>HUM</strong>是<strong>HHUM</strong>的再度改编版本。</p>
+<p><strong>火的记忆</strong>是2018年<strong>歌乐山</strong>项目的一部分。<strong>歌乐山</strong>是由姚波、赵传及其合作艺术家在重庆创作的戏剧作品。作品录制于<strong>十方艺术中心</strong>的现场版本。</p>
+<p>该作品包含在歌乐山姚波工作室录制的传统中国陶瓷柴窑烧制过程中各阶段的不同声音。</p>
+<p><strong>IN RED</strong> comprises three sound works relating to fire.</p>`,
+            english: `<p><strong>HHUM</strong> was completed in 2013, and Xu Cheng regards it as a ritual of sonic purification. The work was performed in various locations between 2012 and 2020, including later version featuring four-channel electro-acoustic and live voice.</p>
+<p><strong>HHUM</strong> incorporates Xu Cheng's resampling and reworking of audio from his group <strong>TMISM</strong>'s 2012 live performance.</p>
+<p><strong>HUM</strong> is a further reworking of <strong>HHUM</strong>.</p>
+<p><strong>THE MEMORIES OF FIRE</strong> as part of the 2018 <strong>Gele Mountain</strong> project, a theatrical production created in Chongqing by Yao Bo, Zhao Chuan and their collaborating artists. The recording is of the live performance at <strong>DIMENSIONS ART CENTER</strong>. It features various sounds recorded at the Yao Bo Studio on Geleshan, capturing the different stages of the firing process in a traditional Chinese wood-fired kiln.</p>`,
+            links: `<a class="link-btn" href="https://playreclabel.bandcamp.com/album/in-red" target="_blank">play rec bandcamp</a>`
+        },
+        'criesofwind': {
+            cat: 'records',
+            title: '风鸣 / Cries Of Wind',
+            subtitle: 'playrec — prm19 — 2019',
+            tags: ['Electro-Acoustic', 'Synthesizer', 'Resonator', 'Computer Music', 'Installation', 'Cybernetic', 'Hardware'],
+            heroImg: './img/workimg/wind.avif',
+            extraImgs: ['./img/workimg/fm1.jpg', './img/workimg/fm2.jpg', './img/workimg/fm3.jpg', './img/workimg/fm.jpeg', './img/workimg/fm4.jpg'],
+            chinese: `<p>风鸣是徐程2015-16年的声音装置和电子音乐作品，2019年由play rec出版。封面书法来自徐程的艺术启蒙老师孙燕平。</p>
+<p>一五年徐程开始接触到Roland Kayn的音乐和他的<strong>Cybernetic</strong>系统，并试着在软件模块合成器<strong>Analog Box</strong>里搭建一个类似的自运行声音合成系统。</p>
+<p>之后徐程在一座废弃的人造山上（市区内一座由垃圾堆建的小山，曾经被用作枪决场地，后被不少拾荒者占据，当时已处半封闭状态。）实验这个系统。合成的声音通过悬挂在树上的风锣和鈸播放出来。（类似<strong>Ondes-Martenot D3</strong>共鸣器的效果）细微的电子声音混合着城市的噪音、自然的风声显得非常奇妙。</p>
+<p>一六年，徐程的组合<strong>the Mustangs in Social Modulator</strong>(徐程／黄磊）在上海<strong>Between Art Lab</strong>进行个展。我想做一个更好版本的<strong>风鸣</strong>。</p>
+<p>徐程和黄磊在展场附近的垃圾回收站找到四个巨大的废弃锅炉残片。这些废铁被用来作为新的共鸣器。他们各自的声音系统各用了两个共鸣器，环绕着展场发声。</p>
+<p>开幕之后一段时间，二人相约一起去录制一次"风鸣"。而当天黄磊因故没有出现，于是徐程用自己的系统独自录了三个版本。</p>
+<p>这三段录音均是由入耳麦克风录制的第一人称听觉体验。录音的过程中，徐程放弃了无操控的展览形式，而对声音有少量的控制，但更多的仍然是体验不同空间位置和声音的变化。</p>`,
+            english: `<p><strong>Cries Of Wind</strong> is a collection of sound installations and electro-acoustic music pieces by Xu Cheng from 2015–16, released by <strong>play rec</strong> in 2019. The calligraphy on the cover is by Sun Yanping, Xu Cheng's first art teacher.</p>
+<p>In 2015, Xu Cheng was first acquainted with the music of Roland Kayn and his <strong>Cybernetic system</strong>, and attempted to build a similar self-running sound synthesis system within the software modular synthesiser <strong>Analog Box</strong>.</p>
+<p>Subsequently, Xu Cheng experimented with this system on an abandoned man-made hill (a small mound within the city centre constructed from rubbish, which had once been used as an execution site and was later occupied by numerous scavengers; at the time, it was in a semi-enclosed state). The synthesised sounds were played through wind chimes and cymbals suspended from trees. (Similar to the effect of the Ondes Martenot D3 resonator) The subtle electronic sounds, mingling with the city's noise and the natural sound of the wind, created a truly wondrous effect.</p>
+<p>In 2016, Xu Cheng's duo, <strong>the Mustangs in Social Modulator</strong> (Xu Cheng and Huang Lei), held a solo exhibition at <strong>Between Art Lab</strong> in Shanghai. He wanted to create a better version of <strong>Cries Of Wind</strong>.</p>
+<p>Xu Cheng and Huang Lei found four huge fragments of discarded boilers at a waste recycling centre near the exhibition venue. These scrap metal pieces were used as new resonators. Each of their sound systems utilised two resonators, emitting sound from all around the exhibition space.</p>
+<p>Some time after the opening, the pair arranged to meet to record <strong>Cries Of Wind</strong> together. However, Huang Lei was unable to attend that day for personal reasons, so Xu Cheng recorded three versions on his own using his own system.</p>
+<p>All three recordings are first-person auditory experiences captured using Binaural microphones. During the recording process, Xu Cheng shifted away from the exhibition's uncontrolled mode, exercising a small degree of control over the sound; yet the focus remained largely on experiencing the variations in sound across different spatial positions.</p>`,
+            links: `<a class="link-btn" href="https://playreclabel.bandcamp.com/album/cries-of-wind" target="_blank">play rec bandcamp</a>`
+        },
+        'prophets': {
+            cat: 'records',
+            title: '管中城声景 / The Prophets in Concrete',
+            subtitle: '赛剋克 PSYCHIC — SK-004 — 2023',
+            tags: ['Music-Concrete', 'Computer Music', 'Field Recording'],
+            heroImg: './img/workimg/gzc.avif',
+            chinese: `<p><strong>The Prophets in Concrete</strong>是徐程以私人记忆为基础的虚构声音作品，也是他标志性的个人作品之一。完成于2016年，并在<strong>AM Art Space</strong>首演。它很难用某种已有的风格来归类。里面的大部分具象声音资料来自于2006年至2016年间徐程录制的实地录音。你完全可以把它当作一部个人意味强烈的地理化声景小说，其中的各个部分均有着现实世界的场景原型。对于徐程而言，这是一个暗藏着各种声音碎片的巨大记忆迷宫。</p>
+<p><strong>The Prophets in Concrete</strong>的最初版本是83分钟的不间断声音作品，其中包含着大段虚无空旷的神游。2023年由<strong>赛剋克 PSYCHIC</strong>以CD形式发行。为了符合普通的CD容量，作品在不改变结构和表达信息的基础上作了一定缩减。原本的不同段落有着各自的标题，而在出版的版本为了保持听觉叙事的整体性混合为一个整体CD轨。</p>`,
+            english: `<p><strong>The Prophets in Concrete</strong> is a sound fiction by Xu Cheng based on his personal memories. It is also one of his signature works. Completed in 2016, it premiered at <strong>AM Art Space</strong>. It is difficult to categorize within any existing stylistic framework. Most of the concrete sound material in the piece comes from field recordings Xu Cheng made between 2006 and 2016. You can certainly view it as a deeply personal, geographically grounded soundscape novel, in which each section is modeled after real-world settings. For Xu Cheng, it is a vast labyrinth of memory, hidden within which lie various fragments of sound.</p>
+<p>The original version of <strong>The Prophets in Concrete</strong> was an 83-minute uninterrupted sound piece containing extensive passages of ethereal, desolate reverie. It was released on CD by <strong>PSYCHIC</strong> in 2023. To fit within the standard CD capacity, the work was slightly condensed without altering its structure or the information it conveys. While the original sections each had their own titles, they were sequenced into a single continuous CD track in the published version to maintain the integrity of the auditory narrative.</p>`,
+            links: `<a class="link-btn" href="https://shengun.bandcamp.com/album/the-prophets-in-concrete" target="_blank">bandcamp</a>`
+        },
+        'iih': {
+            cat: 'records',
+            title: '幻染 / Immersion in Hallucination',
+            subtitle: 'play rec — 2021',
+            tags: ['Vocaloid', 'Music-Concrete', 'Computer Music', 'Field Recording', 'Ambient'],
+            heroImg: './img/workimg/iih.avif',
+            chinese: `<p>幻染是徐程于庚子年冬所作音乐作品的集合。其中许多的声音动机与创意被延续到了徐程之后的声音作品里。</p>`,
+            english: `<p><strong>Immersion in Hallucination</strong> is a collection of musical works composed by Xu Cheng during the winter of 2020-2021. Many of the musical motifs and creative ideas found in this collection were carried forward into Xu Cheng's subsequent works.</p>`,
+            links: `<a class="link-btn" href="https://playreclabel.bandcamp.com/album/immersion-in-hallucination" target="_blank">play rec bandcamp</a>`
+        },
+        'pq': {
+            cat: 'records',
+            title: '泡沫盒四重奏 / Polystyrene Box Quartet',
+            subtitle: 'XTS0042-v1',
+            tags: ['Free-Improvise', 'Live', 'Experimental-Music', 'Text-Score'],
+            heroImg: './img/workimg/pq.jpg',
+            chinese: `<p>《泡沫盒四重奏》是一个由五个部分组成的文字谱作品。</p>
+<p><strong>XTS0042-v1</strong></p>
+<p>作为城市封锁时期的物质象征，泡沫盒承载了废弃物和生命物资、困境与压抑、静默与声音等等概念。徐程以游戏的方式严肃铺陈这些材料与声音构成了这一作品。</p>`,
+            english: `<p><strong>Polystyrene Box Quartet</strong> is a text-score composition in five parts.</p>
+<p><strong>XTS0042-v1</strong></p>
+<p>As a material symbol of the city lockdown, the Polystyrene Box embodies concepts such as waste and essential supplies, hardship and oppression, silence and sound.</p>
+<p>Xu Cheng has used a playful yet serious approach to arrange these materials and sounds, composing this work.</p>
+<p>Premiered and recorded at Ming Room Shanghai on 12th Aug 2022.</p>
+<p>released January 2, 2024<br>Composed by Xu Cheng<br>Polystyrene Boxes: Adi, Jun-Y Ciao, Xu Cheng, TIAN<br>Photos by BT</p>`,
+            links: `<a class="link-btn" href="https://fmcs.bandcamp.com/album/polystyrene-box-quartet" target="_blank">FMCS bandcamp</a>`
+        },
+        'sa': {
+            cat: 'records',
+            title: 'SOCIAL ACAPELLA the music for social',
+            subtitle: 'XTS0058',
+            tags: ['Free-Improvise', 'Live', 'Text&Voice', 'Experimental-Music', 'Text-Score'],
+            heroImg: './img/workimg/sa.jpg',
+            chinese: `<p>SOCIAL ACAPELLA为SOCIAL而作的音乐是徐程2023年的文字谱作品。<strong>XTS0058</strong></p>
+<p>作品以人群的即兴与表述为基础来拆卸人类社交的可能。</p>`,
+            english: `<p><strong>SOCIAL ACAPELLA the music for social</strong> is a Text-Score composition by Xu Cheng.<br><strong>XTS0058</strong><br>This work demonstrates the possibilities of human social interaction by drawing on the spontaneity and self-expression of people.</p>
+<p>Premiered and recorded at THERION, Shanghai, 3rd Sep 2023.<br>Performers in turn:<br>Zheng Haozhong, Zhu Songjie, Fish, TIAN, Xu Cheng, Zhao Cong, Zhu Wenbo, MAI mai, Jun-Y Ciao, Tao Yi, Li Song, Adi<br>Mixing and mastering by Xu Cheng<br>photo by kangaroo murmur (from the video on his YT channel)<br>released October 5, 2024</p>`,
+            links: `<a class="link-btn" href="https://fmcs.bandcamp.com/album/social-acapella-2023" target="_blank">FMCS bandcamp</a>`
+        },
+        'atid': {
+            cat: 'records',
+            title: 'ALL THOSE INTERRUPTED DREAMS',
+            subtitle: 'playrec — prm042 — 2025',
+            tags: ['Music-Concrete', 'Computer Music', 'Field Recording', 'Sound Theatre'],
+            heroImg: './img/workimg/atid.jpg',
+            chinese: `<p><strong>ALL THOSE INTERRUPTED DREAMS</strong>是徐程2022-2025年主要的声音作品集合，同时也是徐程以声音剧场为基础概念的实践记录。作品通以声音事件来构成声音角色，通过文本语音、实地录音、音乐来构成一种空剧场的剧场实践。</p>
+<p><strong>HAUNTED LOVE SONG</strong>（2022~2023）在反复追问着亲密关系的另一面：麻醉与失衡，及其带来的伤痛。作品借用了能剧中同一角色的面具变化而展现状态变化的技巧，将变化置入到人声来表现同一主题。</p>
+<p><strong>BANISHMENT</strong>（2017~2024）以徐程2017年在中国西北地区的实地录音和容格的文本为基础，试图以一种无时空维度的视角来叙述自我放逐的个人心态。</p>`,
+            english: `<p><strong>ALL THOSE INTERRUPTED DREAMS</strong> is a collection of Xu Cheng's major sound works from 2022 to 2025, and also serves as a record of his practice based on the concept of sound theatre. The works use sound events to construct sound characters, employing spoken text, field recordings and music to create a form of 'empty theatre' practice.</p>
+<p><strong>HAUNTED LOVE SONG</strong> repeatedly explores the flip side of intimate relationships: numbness and imbalance, and the pain they bring. The work borrows the technique from Noh theater—where the mask of a single character changes to reflect shifts in its mental state—and applies this concept to the human voice to express the same theme.</p>
+<p><strong>BANISHMENT</strong>, based on Xu Cheng's field recordings from north-western China in 2017 and the writings of Carl Jung, attempts to narrate the mindset of personal self-exile from a perspective transcending the dimensions of time and space.</p>`,
+            links: `<a class="link-btn" href="https://playreclabel.bandcamp.com/album/all-those-interrupted-dreams" target="_blank">play rec bandcamp</a>`
+        },
+        'transformation': {
+            cat: 'records',
+            title: '变形 / Transformation',
+            subtitle: 'FMCS — 2025',
+            tags: ['Free-Improvise', 'Live', 'Experimental-Music'],
+            heroImg: './img/workimg/trans.jpg',
+            chinese: `<p><strong>变形</strong>是徐程为FMCS而作的长音作品。作品运用声音的拉长、变形及乐手的即兴音色构成了乐队同一的频谱声音状态。</p>`,
+            english: `<p><strong>Transformation</strong><br>Composed by Xu Cheng, 2025<br><br>1 Transformation — live recording from ABON 2025<br>2 Transformation 「DUO VERSION」* — Live recording from FMCS SPRING 2025</p>
+<p>credits<br>released April 27, 2025<br>Adie: Violin *<br>MAI mai: Guitar<br>TIAN: Cello *<br>Xu Cheng: Guitar<br>Zhu Songjie: Guitar</p>`,
+            links: `<a class="link-btn" href="https://fmcs.bandcamp.com/album/transformation" target="_blank">FMCS bandcamp</a>`
+        },
+        'pww': {
+            cat: 'records',
+            title: '無辭詩 / Poems without Words',
+            subtitle: 'dustyballz',
+            tags: ['Guitar', 'Free-Improvise', 'Experimental-Music', 'Prepared Guitar'],
+            heroImg: './img/workimg/pww.jpg',
+            extraImgs: ['./img/workimg/pww1.jpg', './img/workimg/pww2.jpg'],
+            chinese: `<p><strong>《無辭詩》</strong>是徐程自<strong>《野狐吟》</strong>后的第二张即兴专辑，收录了十四首徐程的即兴吉他独奏，前后跨越十余年。这些录音自成歌行，也是一次对声音、演奏与日常生活之间关系的探求。</p>
+<p>随着当代声音艺术日益建制化，对传统乐音的疏离已演变为一种范式自觉。<strong>《無辭詩》</strong>则将演奏本身作为一种声音实践，朴素地呈现出乐器的物性、环境的质地，以及演奏者在其中的自处状态。</p>
+<p>在徐程看来，"即兴"首先意味着忘却身体习惯，直至习得"遗忘"本身。这种"忘"弥散在空间中，也重塑着聆听者对时间的体验。而演奏亦淡去了纯粹的美学意趣，成为一种物我并置的力行工夫。琴的骨相与人的性情彼此映照，又相互消融；泛音漂浮在虫鸣之间，森严变灭，慨然流转，于风暴之眼编织绵延的日常。</p>`,
+            english: `<p><strong>Poems without Words</strong> brings together fourteen improvised guitar solos by Xu Cheng, recorded over twelve years. Xu Cheng first emerged in the Shanghai underground in the early 2000s, as an early member of the harsh noise project Torturing Nurse. He went on to become a versatile sound artist working across a wide-ranging array of influences, from Fluxus event scores to Buddhist sutras.</p>
+<p>The project originated in Xu Cheng's attempt to restore a broken instrument he had picked up in a vintage store some fifteen years ago, and to play it as though a guitar reborn. In this process, he came to realise that the art of improvisation consists of endless exercises in forgetting: to forget what the body has learned before, and to learn how to play in a state of "having forgotten".</p>`,
+            links: `<a class="link-btn" href="https://dustyballz.bandcamp.com/album/poems-without-words" target="_blank">dustyballz bandcamp</a>`
+        },
+        'cw': {
+            cat: 'records',
+            title: '心畬泠 / Chimes Within',
+            subtitle: 'bluescreen — 2026',
+            tags: ['Free-Improvise', 'Gong', 'Experimental-Music'],
+            heroImg: './img/workimg/cw.jpg',
+            chinese: `<p>虽然在很多作品中运用了打击乐器的录音采样，徐程很少向人提起，他一直在演奏锣。因大锣难以携带，它成了他极为私密的声音象征。自两千年初购得第一面十寸武汉"高洪泰"风锣起，他持续收集各地及日本的锣、铃与钵，却始终因价格高昂而未能拥有四十寸大锣。直至新冠解封后，他才以近乎二十年前的价格从北方工坊购得一面四十寸抄锣。每天听音与即兴成为他的必要训练。应<strong>bluescreen</strong>之邀，他将多年锣音录音重混为完整音轨《<strong>心畬泠</strong>》，这是继《<strong>野狐吟</strong>》《<strong>无辞诗</strong>》后的第三张即兴器乐专辑，幽暗而缓慢，呈现他未曾分享的个人精神体验。</p>`,
+            english: `<p>Although he has used recorded samples of percussion instruments in many of his works, Xu Cheng rarely mentions that he has always played the gong. As the large gong is difficult to transport, it has become a deeply personal symbol of sound for him. Ever since purchasing his first 10-inch <strong>Gaohongtai</strong> wind gong from Wuhan in the early 2000s, he has continued to collect gongs, bells and cymbals from various regions across China and Japan; yet, due to their exorbitant prices, he had never managed to acquire a 40-inch gong. It was not until after the lifting of the COVID-19 lockdown that he finally purchased a 40-inch chāo gong from a northern workshop at a price comparable to that of nearly twenty years ago. Daily listening exercises and improvisation have become an essential part of his practice. At the invitation of <strong>bluescreen</strong>, he remixed years of gong recordings into a complete track titled <strong>Chimes Within</strong>. This is his third improvised instrumental album, following <strong>Wild Fox Chants</strong> and <strong>Poems Without Words</strong>; sombre and unhurried, it reveals personal spiritual experiences he has never before shared.</p>`,
+            links: `<a class="link-btn" href="https://bluescreen1.bandcamp.com/album/chimes-within" target="_blank">bluescreen bandcamp</a>`
+        },
+
+        // ---------- 装置与硬件 ----------
+        'modelah': {
+            cat: 'installations',
+            title: '模特阿至模特贺 / Model-A ~ Model-H',
+            subtitle: '综合材料/声音装置 — 2014',
+            tags: ['Installation', 'Sound Art', 'Mixed Media'],
+            heroImg: './img/workimg/1.jpg',
+            extraImgs: ['./img/workimg/A&H.jpg'],
+            chinese: `<p>原本为2014年声音艺术家徐程(Xu Cheng)与新媒体艺术家 徐喆(Xu Zhe)所合作的项目"逻辑/误差"(logic/error)中的一部分。其主旨为：误差——逻辑的戏虐。艺术家以现成的四只义乌廉价发声玩具为媒介，在不破坏玩具的前提下，通过逻辑控制来介入、干扰玩具的正常运行的发声规律，遂以观察声音的变化。义乌玩具合唱团由此诞生。</p>`,
+            english: `<p>2014 Mixed media/sound installation. Originally part of the 2014 collaborative project <strong>Logic/Error</strong> by sound artist <strong>Xu Cheng</strong> and new media artist <strong>Xu Zhe</strong>. Its central theme is: error—the irony of logic. Using four inexpensive, off-the-shelf sound-producing toys from Yiwu as their medium, the artists—without damaging the toys—intervened in and disrupted their normal sound-producing patterns through logical control, thereby observing the resulting changes in sound. Thus, the Yiwu Toy Choir was born.</p>`,
+            links: `<div class="link-list"><iframe src="https://player.bilibili.com/player.html?bvid=BV1nqe766EwA&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width:100%; max-width:640px; height:360px;"></iframe></div>`
+        },
+        'evocation': {
+            cat: 'installations',
+            title: '叫魂 / Evocation',
+            subtitle: '声音与视频装置 — 2018',
+            tags: ['Installation', 'Video', 'Sound Art'],
+            heroImg: './img/workimg/evok.jpg',
+            chinese: `<p>好的鬼，坏的鬼，被唤来，游苍界。</p>
+<p>一物无，无物持，光怪相，任塑捏。</p>
+<p>一生二，二相离，离诸相，水火泯。</p>
+<p>声相来，声相寂，苍界泠，无我暝。</p>`,
+            english: `<p><strong>Evocation</strong>—a sound and video installation, 2018</p>
+<p>Good spirits, evil spirits,<br>summoned to roam the boundless realm.</p>
+<p>Formless, without substance,<br>phantoms made and unmade at will.</p>
+<p>One gives birth to two;<br>two divide, and embrace division.<br>Forms dissolve—<br>water into fire, fire into water.</p>
+<p>Sound into image,<br>image into silence.<br>The vast realm murmurs.<br>Selflessness descends.</p>`,
+            links: `<div class="link-list"><iframe src="https://player.bilibili.com/player.html?bvid=BV1phe76yEXd&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width:100%; max-width:640px; height:360px;"></iframe></div>`
+        },
+        'dusty': {
+            cat: 'installations',
+            title: 'Dusty Electronix / Shanghai Pirated Tape Music Centre',
+            subtitle: 'Eurorack 模块与硬件 — 2018 至今',
+            tags: ['Hardware', 'Eurorack', 'DIY', 'Circuit-Bending'],
+            heroImg: './img/workimg/dcm.jpeg',
+            extraImgs: ['./img/workimg/dcm1.jpeg', './img/workimg/dcm2.jpeg', './img/workimg/sptmc1.jpg', './img/workimg/sptmc2.jpg'],
+            chinese: `<p>徐程早年非常热衷于<strong>Circuit-Bending</strong>与电子DIY。他以<strong>Dusty Electronix</strong>的名义自2018年开始运用Arduino与其他硬件与模组手工制造原创<strong>Eurorack</strong>兼容模块，并进行表演。徐程把这个棕色面板系列称为<strong>DCM</strong>（digital controlled modular）系列。</p>
+<p>目前徐程以<strong>Shanghai Pirated Tape Music Center</strong>的名义开发单板面为主的<strong>Eurorack</strong>兼容模块。这个名称来自于一次对谈活动中徐程谈及自己少年时的唱片收集与聆听经历。而台下另一位欧洲著名的声音艺术家则小声评述道："都是盗版。"</p>
+<p>在<strong>GitHub</strong>你可以找到更多徐程的<strong>Europi</strong>模块开源程序。</p>`,
+            english: `<p>Since 2018, Xu Cheng has been hand-building original <strong>Eurorack</strong>-compatible modules under the name <strong>Dusty Electronix</strong>, using <strong>Arduino</strong> alongside other hardware and components, and performing with them. Xu Cheng refers to this series of brown-fronted modules as the <strong>DCM</strong> (Digital Controlled Modular) series.</p>
+<p>Currently, <strong>Xu Cheng</strong> develops primarily single-board <strong>Eurorack</strong>-compatible modules under the name <strong>Shanghai Pirated Tape Music Centre</strong>. This name originates from a talk in which Xu Cheng discussed his experiences collecting and listening to records as a teenager. A renowned European sound artist in the audience quietly remarked, 'They're all pirated.'</p>
+<p>You can find more of Xu Cheng's open-source <strong>Europi</strong> module code on his <strong>GitHub</strong>.</p>`,
+            links: `<a class="link-btn" href="https://github.com/dustymirror" target="_blank">GitHub</a>`
+        },
+
+        // ---------- 现场与表演 ----------
+        'scape': {
+            cat: 'performances',
+            title: 'Scape-sequencer',
+            subtitle: '现场表演 2009-2012 · 2012年 Ars Electronica 声音艺术与电子音乐组获奖作品',
+            tags: ['Live', 'Audiovisual', 'Interactive', 'Computer Music'],
+            chinese: `<p><strong>Scape-sequencer</strong>的灵感来源于乘坐轻轨时车窗与隔音板对外部风景的规律遮挡体验。这种对外部感知的调变与阻隔成为了徐程早期声音与互动实验的重要方向之一。作品运用一个Sequencer对视觉与声音的同步性进行切断并再次让本无关联的声音由于节奏的同步与画面生成出新的关系。这种技术结构与1990-2010年的上海城市界面变化非常相似，都是一台高速运转着的机器，将一切搅合在一起进行重塑。</p>`,
+            english: `<p><strong>Scape-sequencer</strong><br>Live performance 2009–2012<br>Award-winning work in the Sound Art and Electronic Music category at <strong>Ars Electronica</strong> 2012</p>
+<p>Scape-sequencer draws its inspiration from the experience of travelling on the city rail, where the train windows and soundproofing panels systematically obscure the external landscape. This modulation and obstruction of external perception became one of the key directions in Xu Cheng's early sound and interactive experiments. The work utilises a sequencer to disrupt the synchronisation between visuals and sound, thereby allowing previously unrelated sounds to form new relationships through rhythmic synchronisation and the visual imagery. This technical structure bears a striking resemblance to the changes in Shanghai's urban landscape between 1990 and 2010; both are like a high-speed machine that churns everything together to reshape it.</p>`,
+            links: `<div class="link-list"><iframe src="https://player.bilibili.com/player.html?bvid=BV1nE411w7bQ&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width:100%; max-width:640px; height:360px;"></iframe></div>`
+        },
+        'liezi': {
+            cat: 'performances',
+            title: '列子与塔 / Liezi and the Tower',
+            subtitle: '音视频装置与口述剧场表演 — 2023',
+            tags: ['Audiovisual', 'Installation', 'Oral Theatre', 'Live'],
+            chinese: `<p>本作品曾以<strong>导览</strong>为标题进行口述剧场表演。</p>
+<p>上海外滩海关大楼的钟声演变历史是现存人类权力结构运用声音这一媒介塑造社会记忆的珍贵实证之一。作者利用一系列<strong>卡夫卡</strong>原作文本不断进行着追问：在宏观的历史观念下可还有可以确定的真实？"门既然一直是开着的，为何从来没有人进去呢？"作品对照着历史进程中地标影像与声景的不断更迭，提出人类历史认知与欲望黑盒子的关系的一系列困惑。</p>
+<p>3D：胡璇<br>渡轮影像：Gregorio Samsaro</p>`,
+            english: `<p><strong>Liezi and the Tower</strong><br>Audio-visual installation / oral theatre performance, 2023<br>This work was previously presented as an oral theatre performance under the title <strong>Tour</strong>.</p>
+<p>The history of the evolution of the bells at the Shanghai Bund Customs House stands as one of the most valuable examples of how existing power structures utilise sound as a medium to shape social memory. Through a series of original texts by <strong>Kafka</strong>, the artist continually poses the question: under a macro-historical perspective, is there still such a thing as verifiable truth? 'If the door has always been open, why has no one ever gone in?' By juxtaposing the constant shifts in the imagery and soundscapes of landmarks throughout history, the work raises a series of questions regarding the relationship between human historical cognition and the black box of desire.</p>
+<p>3D Modeling: <strong>Hu Xuan</strong><br>Ferry footage: <strong>Gregorio Samsaro</strong></p>`,
+            links: `<div class="link-list"><iframe src="https://player.bilibili.com/player.html?bvid=BV1jc411H7Ta&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width:100%; max-width:640px; height:360px;"></iframe></div>`
+        }
+    };
+
+    // 分类栏项目列表
+    const categories = {
+        records: [
+            { id: '070527', title: '070527', sub: 'Little Sound Records — 2008' },
+            { id: '070919', title: '070919', sub: 'BrainWave Communication — 2007' },
+            { id: 'wfc', title: '野狐吟 / Wild Fox Chants', sub: 'Post Concrete — 2009' },
+            { id: 'pluto', title: 'Pluto', sub: 'playrec — prm02 — 2017' },
+            { id: 'winterreise', title: 'Winterreise', sub: 'playrec — prm10 — 2018' },
+            { id: 'inred', title: 'IN RED', sub: 'playrec — prm11 — 2018' },
+            { id: 'criesofwind', title: '风鸣 / Cries Of Wind', sub: 'playrec — prm19 — 2019' },
+            { id: 'prophets', title: '管中城声景 / The Prophets in Concrete', sub: 'PSYCHIC — 2023' },
+            { id: 'iih', title: '幻染 / Immersion in Hallucination', sub: 'play rec — 2021' },
+            { id: 'pq', title: '泡沫盒四重奏 / Polystyrene Box Quartet', sub: 'XTS0042-v1' },
+            { id: 'sa', title: 'SOCIAL ACAPELLA', sub: 'XTS0058 — 2023' },
+            { id: 'atid', title: 'ALL THOSE INTERRUPTED DREAMS', sub: 'playrec — prm042 — 2025' },
+            { id: 'transformation', title: '变形 / Transformation', sub: 'FMCS — 2025' },
+            { id: 'pww', title: '無辭詩 / Poems without Words', sub: 'dustyballz' },
+            { id: 'cw', title: '心畬泠 / Chimes Within', sub: 'bluescreen — 2026' }
+        ],
+        installations: [
+            { id: 'modelah', title: '模特阿至模特贺 / Model-A ~ Model-H', sub: '2014' },
+            { id: 'evocation', title: '叫魂 / Evocation', sub: '2018' },
+            { id: 'dusty', title: 'Dusty Electronix / SPTMC', sub: '2018 至今' }
+        ],
+        performances: [
+            { id: 'scape', title: 'Scape-sequencer', sub: '2009-2012' },
+            { id: 'liezi', title: '列子与塔 / Liezi and the Tower', sub: '2023' }
+        ]
+    };
+
+    // 所有标签
+    const allTags = [
+        'Music-Concrete', 'Computer Music', 'Field Recording',
+        'Free-Improvise', 'Noise', 'Guitar', 'Prepared Guitar',
+        'Synthesizer', 'Ambient', 'Deconstruction',
+        'Electro-Acoustic', 'Resonator', 'Installation', 'Cybernetic',
+        'Vocaloid', 'Live', 'Text&Voice', 'Experimental-Music', 'Text-Score',
+        'Hardware', 'Eurorack', 'DIY', 'Circuit-Bending',
+        'Audiovisual', 'Interactive', 'Sound Art', 'Mixed Media',
+        'Video', 'Oral Theatre', 'Sound Theatre'
+    ];
+
+    function buildCatalog() {
+        function fill(listId, items) {
+            const ul = document.getElementById(listId);
+            if (!ul) return;
+            ul.innerHTML = items.map(it =>
+                `<li><div class="catalog-item-wrapper">
+                    <a class="catalog-link" data-work="${it.id}">${it.title}</a>
+                    <span class="catalog-link-italic">${it.sub}</span>
+                </div></li>`
+            ).join('');
+        }
+        fill('cat-records', categories.records);
+        fill('cat-installations', categories.installations);
+        fill('cat-performances', categories.performances);
+    }
+
+    function buildTags() {
+        const tagList = document.getElementById('tagList');
+        if (!tagList) return;
+        tagList.innerHTML = allTags.map(t =>
+            `<span class="tag-item" data-tag="${t}">${t}</span>`
+        ).join('');
+    }
+
+    let currentFilter = null;
+
+    function renderWork(id) {
+        const w = worksData[id];
+        if (!w) return;
+        const welcome = document.getElementById('welcomeMessage');
+        const content = document.getElementById('dynamicContent');
+        if (welcome) welcome.style.display = 'none';
+
+        let imagesHtml = '';
+        if (w.heroImg) {
+            imagesHtml += `<img class="work-hero" src="${w.heroImg}" alt="${w.title}" loading="lazy">`;
+        }
+        if (w.extraImgs && w.extraImgs.length) {
+            imagesHtml += '<div class="work-images">' + w.extraImgs.map(src =>
+                `<img src="${src}" alt="" loading="lazy">`
+            ).join('') + '</div>';
+        }
+
+        const tagsHtml = (w.tags || []).map(t => `<span>${t}</span>`).join('');
+
+        content.innerHTML = `
+            <div class="work-item">
+                <div class="work-title">${w.title}</div>
+                <div class="work-subtitle">${w.subtitle || ''}</div>
+                ${imagesHtml}
+                ${w.links ? `<div style="margin-bottom:1rem">${w.links}</div>` : ''}
+                <div class="chinese-text">${w.chinese || ''}</div>
+                ${w.english ? `<div class="centered-symbol">☾</div><div class="en-text">${w.english}</div>` : ''}
+                ${tagsHtml ? `<div class="work-tags">${tagsHtml}</div>` : ''}
+            </div>
+        `;
+        document.querySelector('.content-area').scrollTop = 0;
+
+        document.querySelectorAll('.catalog-link').forEach(a => a.classList.remove('active'));
+        const link = document.querySelector(`.catalog-link[data-work="${id}"]`);
+        if (link) link.classList.add('active');
+    }
+
+    function renderByTag(tag) {
+        const welcome = document.getElementById('welcomeMessage');
+        const content = document.getElementById('dynamicContent');
+        if (welcome) welcome.style.display = 'none';
+
+        const matched = Object.entries(worksData).filter(([id, w]) =>
+            w.tags && w.tags.includes(tag)
+        );
+
+        if (!matched.length) {
+            content.innerHTML = `<div class="welcome-text"><p>没有找到包含该标签的作品。</p></div>`;
+            return;
+        }
+
+        content.innerHTML = matched.map(([id, w]) => {
+            let imagesHtml = '';
+            if (w.heroImg) imagesHtml += `<img class="work-hero" src="${w.heroImg}" alt="${w.title}" loading="lazy">`;
+            if (w.extraImgs && w.extraImgs.length) {
+                imagesHtml += '<div class="work-images">' + w.extraImgs.map(src =>
+                    `<img src="${src}" alt="" loading="lazy">`
+                ).join('') + '</div>';
+            }
+            const tagsHtml = (w.tags || []).map(t => `<span>${t}</span>`).join('');
+            return `
+                <div class="work-item" style="margin-bottom:3rem">
+                    <div class="work-title">${w.title}</div>
+                    <div class="work-subtitle">${w.subtitle || ''}</div>
+                    ${imagesHtml}
+                    ${w.links ? `<div style="margin-bottom:1rem">${w.links}</div>` : ''}
+                    <div class="chinese-text">${w.chinese || ''}</div>
+                    ${w.english ? `<div class="centered-symbol">☾</div><div class="en-text">${w.english}</div>` : ''}
+                    ${tagsHtml ? `<div class="work-tags">${tagsHtml}</div>` : ''}
+                </div>
+            `;
+        }).join('');
+        document.querySelector('.content-area').scrollTop = 0;
+    }
+
+    function resetToWelcome() {
+        const welcome = document.getElementById('welcomeMessage');
+        const content = document.getElementById('dynamicContent');
+        if (welcome) welcome.style.display = 'block';
+        if (content) content.innerHTML = '';
+        currentFilter = null;
+        document.querySelectorAll('.tag-item').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.catalog-link').forEach(a => a.classList.remove('active'));
+    }
+
+    function bindEvents() {
+        document.querySelectorAll('.catalog-link[data-work]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const id = this.getAttribute('data-work');
+                renderWork(id);
+                if (window.innerWidth <= 800) {
+                    const sb = document.getElementById('catalogSidebar');
+                    if (sb) sb.classList.remove('open');
+                }
+            });
+        });
+
+        document.querySelectorAll('.tag-item').forEach(tagEl => {
+            tagEl.addEventListener('click', function() {
+                const tag = this.getAttribute('data-tag');
+                if (currentFilter === tag) {
+                    resetToWelcome();
+                } else {
+                    currentFilter = tag;
+                    document.querySelectorAll('.tag-item').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    renderByTag(tag);
+                }
+            });
+        });
+    }
+
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const catalogSidebar = document.getElementById('catalogSidebar');
+    if (mobileMenuBtn && catalogSidebar) {
+        mobileMenuBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            catalogSidebar.classList.toggle('open');
+            const isOpen = catalogSidebar.classList.contains('open');
+            mobileMenuBtn.querySelector('span:first-child').textContent = isOpen ? '◀️' : '▶️';
+        });
+    }
+
+    buildCatalog();
+    buildTags();
+    bindEvents();
+    resetToWelcome();
+</script>
+</body>
+</html>
